@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reality Capture Prediction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ── MODAL ──────────────────────────────────────────────────────────────── -->
+<div class="modal-ov" id="modal-ov">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-title-text">New post-scan feedback log</div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+
+    <div class="modal-sec">Project info</div>
+    <div class="mgrid">
+      <div class="fg">
+        <label class="flbl">Project name</label>
+        <input type="text" class="fi" id="m-name" placeholder="e.g. JFK Terminal 1 — Level 2">
+      </div>
+      <div class="fg">
+        <label class="flbl">Scanner used</label>
+        <select class="fi" id="m-scanner">
+          <option>BLK360 G2</option>
+          <option>RTC360</option>
+          <option>NavVis VLX</option>
+        </select>
+      </div>
+    </div>
+    <div class="mgrid">
+      <div class="fg">
+        <label class="flbl">Environment</label>
+        <select class="fi" id="m-env">
+          <option>Office</option><option>Airport</option><option>Warehouse</option>
+          <option>Retail</option><option>Hospital</option><option>Industrial</option>
+          <option>Residential</option><option>Mixed Use</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="flbl">Complexity</label>
+        <select class="fi" id="m-comp">
+          <option>Open</option><option>Moderate</option><option>Complex</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-sec">Timing</div>
+    <div class="mgrid3">
+      <div class="fg"><label class="flbl">Arrival time</label><input type="time" class="fi" id="m-arrival" value="12:00"></div>
+      <div class="fg"><label class="flbl">Scan start</label><input type="time" class="fi" id="m-start" value="12:30"></div>
+      <div class="fg"><label class="flbl">Departure</label><input type="time" class="fi" id="m-end" value="16:00"></div>
+    </div>
+
+    <div class="modal-sec">Scan metrics</div>
+    <div class="mgrid3">
+      <div class="fg"><label class="flbl">Total setups</label><input type="number" class="fi" id="m-scans" value="50" min="1"></div>
+      <div class="fg"><label class="flbl">Batteries used</label><input type="number" class="fi" id="m-batt" value="3" min="0"></div>
+      <div class="fg"><label class="flbl">Data (GB)</label><input type="number" class="fi" id="m-data" value="14.5" min="0" step="0.1"></div>
+    </div>
+    <div class="mgrid">
+      <div class="fg">
+        <label class="flbl">Sq ft <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">optional</span></label>
+        <input type="text" class="fi" id="m-sqft" placeholder="Leave blank if unsure" oninput="fmtComma(this)">
+      </div>
+    </div>
+
+    <div class="modal-sec">Quality tier breakdown</div>
+    <div style="font-size:12px;color:#bbb;margin-bottom:12px;line-height:1.5">
+      Drag each tier. Adjusting one auto-balances the others in 5% steps. Total must be 100%.
+    </div>
+    <div class="qt-slider-section">
+      <div class="qt-slider-row">
+        <span class="qt-slider-label">Fast+ 50mm</span>
+        <input type="range" class="qt-slider" id="qs-s"  min="0" max="100" value="0"   step="5" oninput="autoBalanceQT('s')">
+        <span class="qt-pct-display" id="qp-s">0%</span>
+      </div>
+      <div class="qt-slider-row">
+        <span class="qt-slider-label">Fast 25mm</span>
+        <input type="range" class="qt-slider" id="qs-m"  min="0" max="100" value="0"   step="5" oninput="autoBalanceQT('m')">
+        <span class="qt-pct-display" id="qp-m">0%</span>
+      </div>
+      <div class="qt-slider-row">
+        <span class="qt-slider-label">Dense 12mm</span>
+        <input type="range" class="qt-slider" id="qs-d"  min="0" max="100" value="100" step="5" oninput="autoBalanceQT('d')">
+        <span class="qt-pct-display" id="qp-d">100%</span>
+      </div>
+      <div class="qt-slider-row">
+        <span class="qt-slider-label">Dense+ 6mm</span>
+        <input type="range" class="qt-slider" id="qs-dp" min="0" max="100" value="0"   step="5" oninput="autoBalanceQT('dp')">
+        <span class="qt-pct-display" id="qp-dp">0%</span>
+      </div>
+      <div class="qt-total-row">
+        <span class="qt-total-lbl">Total</span>
+        <span class="qt-total-val qt-ok" id="qt-total">100%</span>
+      </div>
+    </div>
+
+    <div class="modal-sec">Site conditions</div>
+    <div class="fg">
+      <label class="flbl">Delay level</label>
+      <div class="dseg" id="m-delay-grp">
+        <button class="dbtn active" onclick="setMDelay('None',this)">None</button>
+        <button class="dbtn" onclick="setMDelay('Minor',this)">Minor</button>
+        <button class="dbtn" onclick="setMDelay('Moderate',this)">Moderate</button>
+        <button class="dbtn" onclick="setMDelay('Major',this)">Major</button>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px">
+      <label class="flbl">Notes <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">optional</span></label>
+      <textarea class="fi" id="m-notes" rows="3" placeholder="Site observations, access issues, equipment notes..." style="resize:vertical"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-submit" id="modal-submit-btn" onclick="submitLog()">Submit for review</button>
+    </div>
+    <div class="modal-msg" id="modal-msg"></div>
+  </div>
+</div>
+
+<!-- ── SHELL ──────────────────────────────────────────────────────────────── -->
+<div class="shell">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="sb-wm">Reality Capture<br>Prediction</div>
+      <div class="sb-tg">Field scanning logistics engine</div>
+    </div>
+    <div class="sb-dv"></div>
+
+    <div class="sb-sl">Scanner fleet</div>
+    <button class="scb active" data-hw="BLK360" onclick="selHW(this)">
+      <div class="scbi"><img src="https://turningpointsystemsgroup.com/wp-content/uploads/2022/08/BLK360-Front.png" alt="BLK360"></div>
+      <div><div class="scbn">BLK360 G2</div><div class="scbs">Leica compact</div></div>
+      <span class="badge bl">Live</span>
+    </button>
+    <button class="scb" data-hw="RTC360" onclick="selHW(this)">
+      <div class="scbi"><img src="https://shop.leica-geosystems.com/sites/default/files/styles/product_large/public/2024-03/Leica%20RTC360%20-%20Hero%20with%20Shadow%20-%20300dpi.png.webp" alt="RTC360"></div>
+      <div><div class="scbn">RTC360</div><div class="scbs">Terrestrial precision</div></div>
+      <span class="badge bs">Soon</span>
+    </button>
+    <button class="scb" data-hw="VLX" onclick="selHW(this)">
+      <div class="scbi"><img src="https://3339696.fs1.hubspotusercontent-eu1.net/hub/3339696/hubfs/product-navvis-VLX-3-Front-800x800-2024.png?width=300&name=product-navvis-VLX-3-Front-800x800-2024.png" alt="VLX"></div>
+      <div><div class="scbn">NavVis VLX</div><div class="scbs">Wearable SLAM</div></div>
+      <span class="badge bs">Soon</span>
+    </button>
+
+    <div class="sb-dv" style="margin-top:10px"></div>
+    <div class="sb-sl">Navigation</div>
+    <div class="sb-nav">
+      <button class="nav-btn active" id="nav-planner" onclick="showPage('planner',this)">
+        <div class="nav-icon">&#x1F4D0;</div>
+        <span class="nav-lbl">Mission planner</span>
+      </button>
+      <button class="nav-btn" id="nav-logs" onclick="showPage('logs',this)">
+        <div class="nav-icon">&#x1F4CB;</div>
+        <span class="nav-lbl">Post-scan feedback</span>
+        <span class="nav-cnt" id="pending-count">0</span>
+      </button>
+    </div>
+
+    <div class="sb-ft">Reality Capture Prediction &copy; 2026</div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Planner page -->
+    <div class="page active" id="page-planner">
+      <div class="mhdr">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="mhn" id="mh-name">Leica BLK360 G2</div>
+          <div class="mhs" id="mh-status"><div class="dot dg"></div><span class="sg">Available</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="conf-chip" style="display:none"><span id="conf-dot"></span><span id="conf-lbl"></span></div>
+          <div style="font-size:10px;color:#ccc;letter-spacing:1.5px;font-weight:700;text-transform:uppercase">Planner</div>
+        </div>
+      </div>
+
+      <div class="csb" id="cs-banner">
+        <div style="width:6px;height:6px;border-radius:50%;background:#BA7517;flex-shrink:0"></div>
+        <div style="font-size:12px;color:#8B5E00;font-weight:600">This scanner is coming soon. Logistics planning will be available on launch.</div>
+      </div>
+
+      <div class="content">
+        <!-- Left panel: inputs -->
+        <div class="lp">
+          <div class="scc">
+            <div class="scc-info">
+              <div class="scn" id="sc-name">Leica BLK360 G2</div>
+              <div class="scs" id="sc-sub">Compact field scanner optimised for rapid deployment.</div>
+              <div class="splist" id="sc-specs">
+                <div class="spi"><div class="spd"></div>1.87 lbs ultra-light unit</div>
+                <div class="spi"><div class="spd"></div>360&#xB0; &#xD7; 270&#xB0; field-of-view</div>
+                <div class="spi"><div class="spd"></div>VIS tracking &#x2014; fast capture</div>
+              </div>
+            </div>
+            <div class="scc-img">
+              <img id="sc-img" src="https://turningpointsystemsgroup.com/wp-content/uploads/2022/08/BLK360-Front.png" alt="Scanner">
+            </div>
+          </div>
+
+          <div id="params-area">
+            <div class="pb">
+              <div class="slbl">Physical footprint</div>
+              <div class="sw" id="calc-mode-grp" style="margin-bottom:10px">
+                <button class="btn grow active" onclick="setCalcMode('area',this)">Enter area (sq ft)</button>
+                <button class="btn grow" onclick="setCalcMode('setups',this)">Enter scan count</button>
+              </div>
+              <div class="fg">
+                <label class="flbl" id="calc-label">Total area (sq ft)</label>
+                <input type="text" class="fi" id="calc-value" value="10,000" oninput="fmtComma(this)"
+                  style="font-size:20px;font-weight:800;padding:12px 14px;color:#111;letter-spacing:-.5px">
+              </div>
+            </div>
+
+            <div class="pb">
+              <div class="slbl">Environment type <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
+              <div class="sw" id="env-tags">
+                <button class="btn active" data-env="Office"      onclick="toggleEnv(this)">Office</button>
+                <button class="btn"        data-env="Airport"     onclick="toggleEnv(this)">Airport</button>
+                <button class="btn"        data-env="Warehouse"   onclick="toggleEnv(this)">Warehouse</button>
+                <button class="btn"        data-env="Retail"      onclick="toggleEnv(this)">Retail</button>
+                <button class="btn"        data-env="Hospital"    onclick="toggleEnv(this)">Hospital</button>
+                <button class="btn"        data-env="Industrial"  onclick="toggleEnv(this)">Industrial</button>
+                <button class="btn"        data-env="Residential" onclick="toggleEnv(this)">Residential</button>
+                <button class="btn"        data-env="Mixed Use"   onclick="toggleEnv(this)">Mixed use</button>
+              </div>
+              <div class="env-note" id="env-note">1 type selected</div>
+            </div>
+
+            <div class="frow">
+              <div class="fg">
+                <label class="flbl">Target finish time</label>
+                <select class="fi" id="finish-time"></select>
+              </div>
+              <div class="fg">
+                <label class="flbl">Spatial complexity</label>
+                <div class="sw" id="complexity-grp">
+                  <button class="btn grow active" onclick="setOpt('complexity','Open',this);updConf()">Open</button>
+                  <button class="btn grow"        onclick="setOpt('complexity','Moderate',this);updConf()">Mod</button>
+                  <button class="btn grow"        onclick="setOpt('complexity','Complex',this);updConf()">Complex</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pb">
+              <div class="slbl">Scan quality tier</div>
+              <div class="sw" id="quality-grp">
+                <button class="btn"        onclick="setQuality('Fast+ (50mm)',this)">Fast+ 50mm</button>
+                <button class="btn"        onclick="setQuality('Fast (25mm)',this)">Fast 25mm</button>
+                <button class="btn active" onclick="setQuality('Dense (12mm)',this)">Dense 12mm</button>
+                <button class="btn"        onclick="setQuality('Dense+ (6mm)',this)">Dense+ 6mm</button>
+              </div>
+              <div class="qhint" id="quality-hint">30 sec/scan &middot; 12mm @ 10m &middot; LDR + HDR</div>
+            </div>
+
+            <div class="pb">
+              <div class="slbl">Vertical factor</div>
+              <div class="sw" id="floors-grp">
+                <button class="btn grow active" onclick="setFloors('single',this)">Single floor</button>
+                <button class="btn grow"        onclick="setFloors('multi',this)">Multi-floor</button>
+              </div>
+              <div class="flrr" id="flr-row">
+                <div class="fg">
+                  <label class="flbl">Number of floors</label>
+                  <input type="number" class="fi" id="floor-count" value="2" min="2" max="50">
+                </div>
+              </div>
+            </div>
+
+            <div class="pb">
+              <div class="slbl">Site conditions <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
+              <div class="sw" id="site-cond-grp">
+                <button class="btn active" data-val="none"         data-mult="0"    onclick="toggleCond(this)">None</button>
+                <button class="btn"        data-val="construction" data-mult="0.15" onclick="toggleCond(this)">Construction +15%</button>
+                <button class="btn"        data-val="escort"       data-mult="0.10" onclick="toggleCond(this)">Escort +10%</button>
+                <button class="btn"        data-val="traffic"      data-mult="0.20" onclick="toggleCond(this)">Heavy traffic +20%</button>
+                <button class="btn"        data-val="permits"      data-mult="0.08" onclick="toggleCond(this)">Permit delays +8%</button>
+                <button class="btn"        data-val="restricted"   data-mult="0.12" onclick="toggleCond(this)">Restricted access +12%</button>
+              </div>
+            </div>
+          </div><!-- /params-area -->
+        </div><!-- /lp -->
+
+        <!-- Right panel: outputs -->
+        <div class="rp">
+          <div class="slbl" style="margin-bottom:12px">Mission output</div>
+          <button class="gbtn-wrap" id="gen-btn" onclick="calculate()">
+            <span class="gbtn-label">Generate requirements</span>
+            <span class="gbtn-sub">Tap to calculate arrival &middot; duration &middot; batteries &middot; data</span>
+            <span class="gbtn-arrow">&#x2192;</span>
+          </button>
+
+          <div class="ac">
+            <div class="albl">Recommended arrival</div>
+            <div class="atime" id="arr-time">&#x2014;</div>
+            <div class="anote" id="arr-note">Run parameters above to calculate</div>
+          </div>
+
+          <div class="rrows">
+            <div class="rrow"><span class="rl">Scan setups</span>      <span class="rv empty" id="res-setups">&#x2014;</span></div>
+            <div class="rrow"><span class="rl">Duration window</span>  <span class="rv empty" id="res-dur">&#x2014;</span></div>
+            <div class="rrow"><span class="rl">Duration (hours)</span> <span class="rv empty" id="res-hours">&#x2014;</span></div>
+            <div class="rrow"><span class="rl">Battery minimum</span>  <span class="rv empty" id="res-bmin">&#x2014;</span></div>
+            <div class="rrow"><span class="rl">Battery recommended</span><span class="rv empty" id="res-brec">&#x2014;</span></div>
+            <div class="rrow"><span class="rl">Data estimate</span>    <span class="rv empty" id="res-data">&#x2014;</span></div>
+          </div>
+
+          <div class="ab" id="alert-box"></div>
+
+          <div class="dbc">
+            <div class="dbt">Database</div>
+            <div class="dbr"><span class="dbk">Approved logs in model</span><span class="dbv" id="db-total">0</span></div>
+            <div class="dbr"><span class="dbk">Look-alikes matched</span>  <span class="dbv" id="db-matches">&#x2014;</span></div>
+            <div class="dbr"><span class="dbk">Data source</span>          <span class="dbv" id="db-src">&#x2014;</span></div>
+          </div>
+        </div><!-- /rp -->
+      </div><!-- /content -->
+    </div><!-- /page-planner -->
+
+    <!-- Logs page -->
+    <div class="page" id="page-logs">
+      <div class="log-hdr">
+        <div class="log-hdr-left">
+          <h2>Post-scan feedback log</h2>
+          <p>Field submissions &middot; admin approval &middot; model calibration</p>
+        </div>
+        <div class="log-hdr-right">
+          <div class="ftabs" id="filter-tabs">
+            <button class="lft active"  onclick="filterLogs('all',this)">All</button>
+            <button class="lft"         onclick="filterLogs('pending',this)">Pending</button>
+            <button class="lft"         onclick="filterLogs('approved',this)">Approved</button>
+            <button class="lft"         onclick="filterLogs('rejected',this)">Rejected</button>
+          </div>
+          <button class="new-btn" onclick="openNewModal()">+ New log</button>
+        </div>
+      </div>
+      <div class="log-body">
+        <div class="log-list" id="log-list"><div class="loading-msg">Loading logs...</div></div>
+        <div class="log-detail" id="log-detail">
+          <div class="det-empty"><div style="font-size:36px">&#x1F4CB;</div><p>Select a log to view details</p></div>
+        </div>
+      </div>
+    </div><!-- /page-logs -->
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
+<script src="js/config.js"></script>
+<script src="js/state.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script src="js/planner.js"></script>
+<script src="js/logs.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
