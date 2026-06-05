@@ -5,11 +5,12 @@ const AppState = {
   logFilter:    'all',
   selLogId:     null,
   editingLogId: null,
-  selEnvs:      new Set(['Office']),
+  selEnvs:      new Set(['Airport']),
   selConds:     new Set(['none']),
   complexity:   'Open',
   quality:      'Dense (12mm)',
+  plannerQT:    { s: 0, m: 0, d: 100, dp: 0 },
   floorsMode:   'single',
   mDelay:       'None',
-  calcMode:     'area'
+  calcMode:     'setups'
 };

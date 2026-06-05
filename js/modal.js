@@ -69,6 +69,31 @@ function resetQT(s, m, d, dp) {
   td.className   = 'qt-total-val ' + (total === 100 ? 'qt-ok' : 'qt-bad');
 }
 
+// ── Environment multi-select ──────────────────────────────────────────────────
+
+function toggleModalEnv(btn) {
+  var active = document.querySelectorAll('#m-env-grp .btn.active');
+  if (btn.classList.contains('active') && active.length === 1) return; // keep at least one
+  btn.classList.toggle('active');
+}
+
+function getModalEnvs() {
+  var envs = [];
+  document.querySelectorAll('#m-env-grp .btn.active').forEach(b => envs.push(b.dataset.env));
+  return envs.join(', ');
+}
+
+function setModalEnvs(envString) {
+  var list = (envString || '').split(',').map(s => s.trim()).filter(Boolean);
+  document.querySelectorAll('#m-env-grp .btn').forEach(b => {
+    b.classList.toggle('active', list.includes(b.dataset.env));
+  });
+  // fallback: if nothing matched, default to Airport
+  if (!document.querySelector('#m-env-grp .btn.active')) {
+    document.querySelector('#m-env-grp .btn[data-env="Airport"]').classList.add('active');
+  }
+}
+
 // ── Open / close ──────────────────────────────────────────────────────────────
 
 function openNewModal() {
@@ -76,7 +101,7 @@ function openNewModal() {
   document.getElementById('modal-title-text').textContent    = 'New post-scan feedback log';
   document.getElementById('m-name').value                    = '';
   document.getElementById('m-scanner').selectedIndex        = 0;
-  document.getElementById('m-env').selectedIndex            = 0;
+  setModalEnvs('Airport');
   document.getElementById('m-comp').selectedIndex           = 0;
   document.getElementById('m-arrival').value                = '12:00';
   document.getElementById('m-start').value                  = '12:30';
@@ -103,7 +128,7 @@ function openEditModal(id) {
   document.getElementById('modal-title-text').textContent = 'Edit log';
   document.getElementById('m-name').value                 = l.project_name || '';
   document.getElementById('m-scanner').value              = l.scanner       || 'BLK360 G2';
-  document.getElementById('m-env').value                  = l.environment   || 'Office';
+  setModalEnvs(l.environment || 'Airport');
   document.getElementById('m-comp').value                 = l.complexity    || 'Open';
   document.getElementById('m-arrival').value              = l.arrival_time  || '12:00';
   document.getElementById('m-start').value                = l.scan_start    || '12:30';
@@ -150,6 +175,9 @@ async function submitLog() {
     return;
   }
 
+  var envValue = getModalEnvs();
+  if (!envValue) { showMsg('err', 'Please select at least one environment type.'); return; }
+
   var sqftRaw = document.getElementById('m-sqft').value.replace(/,/g, '').trim();
   var btn     = document.getElementById('modal-submit-btn');
   btn.disabled    = true;
@@ -159,7 +187,7 @@ async function submitLog() {
   var payload = {
     project_name:    name,
     scanner:         document.getElementById('m-scanner').value,
-    environment:     document.getElementById('m-env').value,
+    environment:     envValue,
     complexity:      document.getElementById('m-comp').value,
     arrival_time:    document.getElementById('m-arrival').value,
     scan_start:      document.getElementById('m-start').value,

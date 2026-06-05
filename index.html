@@ -33,21 +33,24 @@
         </select>
       </div>
     </div>
-    <div class="mgrid">
-      <div class="fg">
-        <label class="flbl">Environment</label>
-        <select class="fi" id="m-env">
-          <option>Office</option><option>Airport</option><option>Warehouse</option>
-          <option>Retail</option><option>Hospital</option><option>Industrial</option>
-          <option>Residential</option><option>Mixed Use</option>
-        </select>
+    <div class="fg" style="margin-bottom:8px">
+      <label class="flbl">Environment <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">— select all that apply</span></label>
+      <div class="sw" id="m-env-grp" style="margin-top:5px">
+        <button class="btn" data-env="Office"      onclick="toggleModalEnv(this)">Office</button>
+        <button class="btn active" data-env="Airport"     onclick="toggleModalEnv(this)">Airport</button>
+        <button class="btn" data-env="Warehouse"   onclick="toggleModalEnv(this)">Warehouse</button>
+        <button class="btn" data-env="Retail"      onclick="toggleModalEnv(this)">Retail</button>
+        <button class="btn" data-env="Hospital"    onclick="toggleModalEnv(this)">Hospital</button>
+        <button class="btn" data-env="Industrial"  onclick="toggleModalEnv(this)">Industrial</button>
+        <button class="btn" data-env="Residential" onclick="toggleModalEnv(this)">Residential</button>
+        <button class="btn" data-env="Mixed Use"   onclick="toggleModalEnv(this)">Mixed Use</button>
       </div>
-      <div class="fg">
-        <label class="flbl">Complexity</label>
-        <select class="fi" id="m-comp">
-          <option>Open</option><option>Moderate</option><option>Complex</option>
-        </select>
-      </div>
+    </div>
+    <div class="fg" style="margin-bottom:8px">
+      <label class="flbl">Complexity</label>
+      <select class="fi" id="m-comp" style="margin-top:5px">
+        <option>Open</option><option>Moderate</option><option>Complex</option>
+      </select>
     </div>
 
     <div class="modal-sec">Timing</div>
@@ -212,12 +215,12 @@
             <div class="pb">
               <div class="slbl">Physical footprint</div>
               <div class="sw" id="calc-mode-grp" style="margin-bottom:10px">
-                <button class="btn grow active" onclick="setCalcMode('area',this)">Enter area (sq ft)</button>
-                <button class="btn grow" onclick="setCalcMode('setups',this)">Enter scan count</button>
+                <button class="btn grow active" onclick="setCalcMode('setups',this)">Enter scan count</button>
+                <button class="btn grow" onclick="setCalcMode('area',this)">Enter area (sq ft)</button>
               </div>
               <div class="fg">
-                <label class="flbl" id="calc-label">Total area (sq ft)</label>
-                <input type="text" class="fi" id="calc-value" value="10,000" oninput="fmtComma(this)"
+                <label class="flbl" id="calc-label">Scan count</label>
+                <input type="text" class="fi" id="calc-value" value="50" oninput="fmtComma(this)"
                   style="font-size:20px;font-weight:800;padding:12px 14px;color:#111;letter-spacing:-.5px">
               </div>
             </div>
@@ -225,8 +228,8 @@
             <div class="pb">
               <div class="slbl">Environment type <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
               <div class="sw" id="env-tags">
-                <button class="btn active" data-env="Office"      onclick="toggleEnv(this)">Office</button>
-                <button class="btn"        data-env="Airport"     onclick="toggleEnv(this)">Airport</button>
+                <button class="btn"        data-env="Office"      onclick="toggleEnv(this)">Office</button>
+                <button class="btn active" data-env="Airport"     onclick="toggleEnv(this)">Airport</button>
                 <button class="btn"        data-env="Warehouse"   onclick="toggleEnv(this)">Warehouse</button>
                 <button class="btn"        data-env="Retail"      onclick="toggleEnv(this)">Retail</button>
                 <button class="btn"        data-env="Hospital"    onclick="toggleEnv(this)">Hospital</button>
@@ -246,7 +249,7 @@
                 <label class="flbl">Spatial complexity</label>
                 <div class="sw" id="complexity-grp">
                   <button class="btn grow active" onclick="setOpt('complexity','Open',this);updConf()">Open</button>
-                  <button class="btn grow"        onclick="setOpt('complexity','Moderate',this);updConf()">Mod</button>
+                  <button class="btn grow"        onclick="setOpt('complexity','Moderate',this);updConf()">Moderate</button>
                   <button class="btn grow"        onclick="setOpt('complexity','Complex',this);updConf()">Complex</button>
                 </div>
               </div>
@@ -254,13 +257,38 @@
 
             <div class="pb">
               <div class="slbl">Scan quality tier</div>
-              <div class="sw" id="quality-grp">
-                <button class="btn"        onclick="setQuality('Fast+ (50mm)',this)">Fast+ 50mm</button>
-                <button class="btn"        onclick="setQuality('Fast (25mm)',this)">Fast 25mm</button>
-                <button class="btn active" onclick="setQuality('Dense (12mm)',this)">Dense 12mm</button>
-                <button class="btn"        onclick="setQuality('Dense+ (6mm)',this)">Dense+ 6mm</button>
+              <div class="qt-slider-section" style="margin-top:8px">
+                <div class="qt-slider-row">
+                  <span class="qt-slider-label">Fast+ 50mm</span>
+                  <input type="range" class="qt-slider" id="pqs-s"  min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('s')">
+                  <span class="qt-pct-display" id="pqp-s">0%</span>
+                </div>
+                <div class="qt-slider-row">
+                  <span class="qt-slider-label">Fast 25mm</span>
+                  <input type="range" class="qt-slider" id="pqs-m"  min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('m')">
+                  <span class="qt-pct-display" id="pqp-m">0%</span>
+                </div>
+                <div class="qt-slider-row">
+                  <span class="qt-slider-label">Dense 12mm</span>
+                  <input type="range" class="qt-slider" id="pqs-d"  min="0" max="100" value="100" step="5" oninput="autoBalancePlannerQT('d')">
+                  <span class="qt-pct-display" id="pqp-d">100%</span>
+                </div>
+                <div class="qt-slider-row">
+                  <span class="qt-slider-label">Dense+ 6mm</span>
+                  <input type="range" class="qt-slider" id="pqs-dp" min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('dp')">
+                  <span class="qt-pct-display" id="pqp-dp">0%</span>
+                </div>
+                <div class="qt-total-row">
+                  <span class="qt-total-lbl">Total</span>
+                  <span class="qt-total-val qt-ok" id="pqt-total">100%</span>
+                </div>
               </div>
-              <div class="qhint" id="quality-hint">30 sec/scan &middot; 12mm @ 10m &middot; LDR + HDR</div>
+              <div class="qt-bar" id="planner-qt-bar" style="margin-top:10px">
+                <div class="qt-seg" style="width:100%;background:#0F6E56;border-radius:5px"></div>
+              </div>
+              <div class="qt-legend" id="planner-qt-legend" style="margin-top:6px">
+                <div class="qt-li"><div class="qt-dot" style="background:#0F6E56"></div>Dense 12mm 100%</div>
+              </div>
             </div>
 
             <div class="pb">
@@ -301,7 +329,7 @@
           </button>
 
           <div class="ac">
-            <div class="albl">Recommended arrival</div>
+            <div class="albl">Recommended start time</div>
             <div class="atime" id="arr-time">&#x2014;</div>
             <div class="anote" id="arr-note">Run parameters above to calculate</div>
           </div>
@@ -356,15 +384,16 @@
 </div><!-- /shell -->
 
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
-<script src="js/config.js"></script>
-<script src="js/state.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/db.js"></script>
-<script src="js/planner.js"></script>
-<script src="js/logs.js"></script>
-<script src="js/modal.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/main.js"></script>
+<!-- ?v= version string busts the browser cache after every change — increment when deploying -->
+<script src="js/config.js?v=3"></script>
+<script src="js/state.js?v=3"></script>
+<script src="js/utils.js?v=3"></script>
+<script src="js/db.js?v=3"></script>
+<script src="js/planner.js?v=3"></script>
+<script src="js/logs.js?v=3"></script>
+<script src="js/modal.js?v=3"></script>
+<script src="js/ui.js?v=3"></script>
+<script src="js/main.js?v=3"></script>
 
 </body>
 </html>

@@ -45,10 +45,10 @@ const SCANNERS = {
 };
 
 const QUALITY = {
-  'Fast+ (50mm)': { tps: 7,  battLifeHrs: 0.38, dataGbScan: 0.10, sfScanMult: 0.55, hint: '7 sec/scan · 50mm @ 10m · LDR' },
-  'Fast (25mm)':  { tps: 13, battLifeHrs: 0.50, dataGbScan: 0.18, sfScanMult: 0.80, hint: '13 sec/scan · 25mm @ 10m · LDR' },
-  'Dense (12mm)': { tps: 30, battLifeHrs: 0.70, dataGbScan: 0.29, sfScanMult: 1.00, hint: '30 sec/scan · 12mm @ 10m · LDR + HDR' },
-  'Dense+ (6mm)': { tps: 75, battLifeHrs: 0.88, dataGbScan: 0.48, sfScanMult: 1.85, hint: '75 sec/scan · 6mm @ 10m · LDR + HDR' }
+  'Fast+ (50mm)': { tps: 7,  battLifeHrs: 0.38, dataGbScan: 0.10, sfScanMult: 0.55, hint: '7 sec/scan · 50mm @ 10m' },
+  'Fast (25mm)':  { tps: 13, battLifeHrs: 0.50, dataGbScan: 0.18, sfScanMult: 0.80, hint: '13 sec/scan · 25mm @ 10m' },
+  'Dense (12mm)': { tps: 30, battLifeHrs: 0.70, dataGbScan: 0.29, sfScanMult: 1.00, hint: '30 sec/scan · 12mm @ 10m' },
+  'Dense+ (6mm)': { tps: 75, battLifeHrs: 0.88, dataGbScan: 0.48, sfScanMult: 1.85, hint: '75 sec/scan · 6mm @ 10m' }
 };
 
 const BASELINE = {

@@ -272,6 +272,8 @@ select.fi {
 .feed-btn:hover { background: #333; transform: translateY(-1px); }
 .edit-btn     { width: 100%; padding: 12px; background: #fff; color: #111; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #E0E0E0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
 .edit-btn:hover { border-color: #111; background: #F8F8F8; }
+.del-btn        { width: 100%; padding: 12px; background: #fff; color: #A32D2D; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #FFCACA; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
+.del-btn:hover  { background: #A32D2D; color: #fff; border-color: #A32D2D; }
 
 .loading-msg { text-align: center; padding: 56px; font-size: 13px; color: #bbb; }
 

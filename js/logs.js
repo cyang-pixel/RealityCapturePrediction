@@ -132,7 +132,18 @@ function selectLog(id) {
       ? '<button class="feed-btn" onclick="feedToModel(\'' + l.id + '\')">&#x2192; Feed to calculation model</button>'
       : '')
     + '<button class="edit-btn" onclick="openEditModal(\'' + l.id + '\')">&#x270E; Edit this log</button>'
+    + '<button class="del-btn" onclick="deleteLog(\'' + l.id + '\')">&#x1F5D1; Delete this log</button>'
     + '</div>';
+}
+
+async function deleteLog(id) {
+  if (!confirm('Delete this log? This cannot be undone.')) return;
+  await sb.from('scan_logs').delete().eq('id', id);
+  AppState.selLogId = null;
+  document.getElementById('log-detail').innerHTML =
+    '<div class="det-empty"><div style="font-size:36px">&#x1F4CB;</div><p>Select a log to view details</p></div>';
+  await loadLogs();
+  await loadApprovedLogs();
 }
 
 async function approveLog(id) {
