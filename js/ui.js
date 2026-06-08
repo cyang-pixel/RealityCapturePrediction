@@ -46,7 +46,6 @@ function selHW(el) {
 function toggleEnv(btn) {
   var env = btn.dataset.env;
   if (AppState.selEnvs.has(env)) {
-    if (AppState.selEnvs.size === 1) return; // keep at least one selected
     AppState.selEnvs.delete(env);
     btn.classList.remove('active');
   } else {
@@ -54,8 +53,9 @@ function toggleEnv(btn) {
     btn.classList.add('active');
   }
   var n = AppState.selEnvs.size;
-  document.getElementById('env-note').textContent =
-    n + ' type' + (n > 1 ? 's' : '') + ' selected' + (n > 1 ? ' — baselines blended' : '');
+  document.getElementById('env-note').textContent = n === 0
+    ? 'General prediction — all environments blended'
+    : n + ' type' + (n > 1 ? 's' : '') + ' selected' + (n > 1 ? ' — baselines blended' : '');
   updConf();
 }
 

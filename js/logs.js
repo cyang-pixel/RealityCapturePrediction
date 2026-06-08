@@ -42,6 +42,7 @@ function renderLogList() {
       + '<div class="lcard-meta">'
       +   '<span class="pill">' + escHtml(l.scanner) + '</span>'
       +   '<span class="pill blue">' + escHtml(l.environment) + '</span>'
+      +   '<span class="pill">' + escHtml(l.complexity) + '</span>'
       +   '<span class="pill">' + l.total_scans + ' scans</span>'
       +   '<span class="pill">' + l.batteries_used + ' batt</span>'
       +   dom + fed

@@ -135,6 +135,7 @@ body, html {
 .btn:hover        { border-color: #aaa; color: #333; background: #F8F8F8; }
 .btn.active       { background: #111; color: #fff; border-color: #111; }
 .btn.grow         { flex: 1; min-width: 90px; text-align: center; }
+.btn-cnt          { font-weight: 400; color: #E87722; }
 
 .frow  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 .fg    { display: flex; flex-direction: column; gap: 5px; }
@@ -190,9 +191,15 @@ select.fi {
 .awarn      { background: #FFF9F0; border: 1px solid #FFDCA0; color: #8B5E00; }
 
 /* Database status */
-.dbc  { background: #fff; border: 1px solid #E2E2E2; border-radius: 12px; padding: 14px 16px; }
-.dbt  { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 10px; }
-.dbr  { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid #F8F8F8; }
+.dbc       { background: #fff; border: 1px solid #E2E2E2; border-radius: 12px; padding: 14px 16px; }
+.dbt       { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 12px; }
+.dbc-hero  { text-align: center; padding-bottom: 14px; margin-bottom: 10px; border-bottom: 1px solid #F0F0F0; }
+.dbc-n     { font-size: 48px; font-weight: 800; color: #111; letter-spacing: -3px; line-height: 1; }
+.dbc-nlbl  { font-size: 11px; color: #bbb; margin-top: 3px; margin-bottom: 12px; }
+.dbc-track { height: 5px; background: #F0F0F0; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.dbc-fill  { height: 100%; width: 0%; border-radius: 3px; background: #ccc; transition: width .5s ease, background .4s; }
+.dbc-goal  { font-size: 10px; color: #ccc; letter-spacing: .3px; }
+.dbr  { display: flex; justify-content: space-between; align-items: center; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F8F8F8; }
 .dbr:last-child { border-bottom: none; }
 .dbk  { color: #bbb; }
 .dbv  { font-weight: 700; color: #555; }

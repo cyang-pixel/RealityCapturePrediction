@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=4">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -183,7 +183,7 @@
           <div class="mhs" id="mh-status"><div class="dot dg"></div><span class="sg">Available</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
-          <div id="conf-chip" style="display:none"><span id="conf-dot"></span><span id="conf-lbl"></span></div>
+          <div class="chip cl" id="conf-chip"><span class="dot" id="conf-dot" style="background:#ccc"></span><span id="conf-lbl">Calibrating…</span></div>
           <div style="font-size:10px;color:#ccc;letter-spacing:1.5px;font-weight:700;text-transform:uppercase">Planner</div>
         </div>
       </div>
@@ -228,14 +228,14 @@
             <div class="pb">
               <div class="slbl">Environment type <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
               <div class="sw" id="env-tags">
-                <button class="btn"        data-env="Office"      onclick="toggleEnv(this)">Office</button>
-                <button class="btn active" data-env="Airport"     onclick="toggleEnv(this)">Airport</button>
-                <button class="btn"        data-env="Warehouse"   onclick="toggleEnv(this)">Warehouse</button>
-                <button class="btn"        data-env="Retail"      onclick="toggleEnv(this)">Retail</button>
-                <button class="btn"        data-env="Hospital"    onclick="toggleEnv(this)">Hospital</button>
-                <button class="btn"        data-env="Industrial"  onclick="toggleEnv(this)">Industrial</button>
-                <button class="btn"        data-env="Residential" onclick="toggleEnv(this)">Residential</button>
-                <button class="btn"        data-env="Mixed Use"   onclick="toggleEnv(this)">Mixed use</button>
+                <button class="btn"        data-env="Office"      onclick="toggleEnv(this)">Office<span class="btn-cnt"></span></button>
+                <button class="btn active" data-env="Airport"     onclick="toggleEnv(this)">Airport<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Warehouse"   onclick="toggleEnv(this)">Warehouse<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Retail"      onclick="toggleEnv(this)">Retail<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Hospital"    onclick="toggleEnv(this)">Hospital<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Industrial"  onclick="toggleEnv(this)">Industrial<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Residential" onclick="toggleEnv(this)">Residential<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Mixed Use"   onclick="toggleEnv(this)">Mixed use<span class="btn-cnt"></span></button>
               </div>
               <div class="env-note" id="env-note">1 type selected</div>
             </div>
@@ -248,9 +248,9 @@
               <div class="fg">
                 <label class="flbl">Spatial complexity</label>
                 <div class="sw" id="complexity-grp">
-                  <button class="btn grow active" onclick="setOpt('complexity','Open',this);updConf()">Open</button>
-                  <button class="btn grow"        onclick="setOpt('complexity','Moderate',this);updConf()">Moderate</button>
-                  <button class="btn grow"        onclick="setOpt('complexity','Complex',this);updConf()">Complex</button>
+                  <button class="btn grow active" data-comp="Open"     onclick="setOpt('complexity','Open',this);updConf()">Open<span class="btn-cnt"></span></button>
+                  <button class="btn grow"        data-comp="Moderate" onclick="setOpt('complexity','Moderate',this);updConf()">Moderate<span class="btn-cnt"></span></button>
+                  <button class="btn grow"        data-comp="Complex"  onclick="setOpt('complexity','Complex',this);updConf()">Complex<span class="btn-cnt"></span></button>
                 </div>
               </div>
             </div>
@@ -346,10 +346,15 @@
           <div class="ab" id="alert-box"></div>
 
           <div class="dbc">
-            <div class="dbt">Database</div>
+            <div class="dbt">Model calibration</div>
+            <div class="dbc-hero">
+              <div class="dbc-n" id="db-matches">—</div>
+              <div class="dbc-nlbl">look-alike matches</div>
+              <div class="dbc-track"><div class="dbc-fill" id="dbc-fill" style="width:0%;background:#ccc"></div></div>
+              <div class="dbc-goal">20 matches = high confidence</div>
+            </div>
             <div class="dbr"><span class="dbk">Approved logs in model</span><span class="dbv" id="db-total">0</span></div>
-            <div class="dbr"><span class="dbk">Look-alikes matched</span>  <span class="dbv" id="db-matches">&#x2014;</span></div>
-            <div class="dbr"><span class="dbk">Data source</span>          <span class="dbv" id="db-src">&#x2014;</span></div>
+            <div class="dbr"><span class="dbk">Data source</span><span class="dbv" id="db-src">—</span></div>
           </div>
         </div><!-- /rp -->
       </div><!-- /content -->
@@ -388,11 +393,11 @@
 <script src="js/config.js?v=3"></script>
 <script src="js/state.js?v=3"></script>
 <script src="js/utils.js?v=3"></script>
-<script src="js/db.js?v=3"></script>
-<script src="js/planner.js?v=3"></script>
-<script src="js/logs.js?v=3"></script>
+<script src="js/db.js?v=4"></script>
+<script src="js/planner.js?v=6"></script>
+<script src="js/logs.js?v=4"></script>
 <script src="js/modal.js?v=3"></script>
-<script src="js/ui.js?v=3"></script>
+<script src="js/ui.js?v=4"></script>
 <script src="js/main.js?v=3"></script>
 
 </body>

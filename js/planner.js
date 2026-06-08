@@ -1,8 +1,14 @@
 // Mission planner — all calculation logic for scan estimates.
 
+function envMatch(envSet, envType) {
+  if (envSet.size === 0) return true;
+  var types = Array.isArray(envType) ? envType : [envType];
+  return types.some(function(t) { return envSet.has(t); });
+}
+
 function lookAlikes(envSet, comp) {
   return AppState.DB.filter(p =>
-    envSet.has(p.env_type) &&
+    envMatch(envSet, p.env_type) &&
     p.complexity === comp &&
     p.delay_profile !== 'Major'
   );
@@ -14,9 +20,40 @@ function getBaseSF(envSet, comp, matches) {
     var totalScans = matches.reduce((a, p) => a + p.actual_scans, 0);
     return totalSF / totalScans;
   }
+  var keys = envSet.size > 0 ? Array.from(envSet) : Object.keys(BASELINE);
   var t = 0, c = 0;
-  envSet.forEach(e => { t += (BASELINE[e] || BASELINE['Office'])[comp] || 500; c++; });
+  keys.forEach(e => { t += (BASELINE[e] || BASELINE['Office'])[comp] || 500; c++; });
   return t / c;
+}
+
+var COMP_MULT = { Open: 1.0, Moderate: 1.35, Complex: 1.75 };
+var COMP_FALLBACK = {
+  Open:     ['Moderate', 'Complex'],
+  Moderate: ['Open',     'Complex'],
+  Complex:  ['Moderate', 'Open']
+};
+
+// Time-per-scan multipliers relative to Airport (open, fast movement = 1.0).
+// Reflects setup/movement overhead per environment type, not scan acquisition time.
+// Office/Hospital/Residential are highest — many rooms mean more door-threshold
+// positions and more stop-start movement. Bypassed automatically once real data
+// for that environment exists in the DB.
+var ENV_TPS_MULT = {
+  'Airport':     1.00,
+  'Warehouse':   1.10,
+  'Industrial':  1.15,
+  'Retail':      1.20,
+  'Mixed Use':   1.25,
+  'Office':      1.40,
+  'Hospital':    1.45,
+  'Residential': 1.55
+};
+
+function getEnvMult(envSet) {
+  var keys = envSet.size > 0 ? Array.from(envSet) : Object.keys(ENV_TPS_MULT);
+  var total = 0;
+  keys.forEach(function(e) { total += (ENV_TPS_MULT[e] || 1.0); });
+  return keys.length > 0 ? total / keys.length : 1.0;
 }
 
 function getAvgTpS(envSet, comp, qual, matches) {
@@ -24,7 +61,61 @@ function getAvgTpS(envSet, comp, qual, matches) {
   if (qm.length > 0) {
     return qm.reduce((a, p) => a + (p.actual_hours * 3600 / p.actual_scans), 0) / qm.length;
   }
-  return QUALITY[qual].tps;
+
+  var targetComp = COMP_MULT[comp] || 1.0;
+  var targetEnv  = getEnvMult(envSet);
+  var adjComps   = COMP_FALLBACK[comp] || [];
+
+  // 1. Same env(s), adjacent complexity
+  for (var ci = 0; ci < adjComps.length; ci++) {
+    var ac = adjComps[ci];
+    var acm = AppState.DB.filter(function(p) {
+      return envMatch(envSet, p.env_type) && p.complexity === ac && p.delay_profile !== 'Major' && p.quality_setting === qual;
+    });
+    if (acm.length > 0) {
+      var tps1 = acm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / acm.length;
+      return tps1 * (targetComp / (COMP_MULT[ac] || 1.0));
+    }
+  }
+
+  // Adjacent environments sorted by how close their multiplier is to the target
+  var adjEnvs = Object.keys(ENV_TPS_MULT)
+    .filter(function(e) { return !envSet.has(e); })
+    .sort(function(a, b) {
+      return Math.abs(ENV_TPS_MULT[a] - targetEnv) - Math.abs(ENV_TPS_MULT[b] - targetEnv);
+    });
+
+  // 2. Adjacent env, same complexity
+  for (var ei = 0; ei < adjEnvs.length; ei++) {
+    var ae = adjEnvs[ei];
+    var aem = AppState.DB.filter(function(p) {
+      var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
+      return t.indexOf(ae) !== -1 && p.complexity === comp && p.delay_profile !== 'Major' && p.quality_setting === qual;
+    });
+    if (aem.length > 0) {
+      var tps2 = aem.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / aem.length;
+      return tps2 * (targetEnv / (ENV_TPS_MULT[ae] || 1.0));
+    }
+  }
+
+  // 3. Adjacent env + adjacent complexity
+  for (var ei2 = 0; ei2 < adjEnvs.length; ei2++) {
+    var ae2 = adjEnvs[ei2];
+    for (var ci2 = 0; ci2 < adjComps.length; ci2++) {
+      var ac2 = adjComps[ci2];
+      var both = AppState.DB.filter(function(p) {
+        var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
+        return t.indexOf(ae2) !== -1 && p.complexity === ac2 && p.delay_profile !== 'Major' && p.quality_setting === qual;
+      });
+      if (both.length > 0) {
+        var tps3 = both.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / both.length;
+        return tps3 * (targetComp / (COMP_MULT[ac2] || 1.0)) * (targetEnv / (ENV_TPS_MULT[ae2] || 1.0));
+      }
+    }
+  }
+
+  // 4. No data anywhere — pure spec-based fallback
+  return QUALITY[qual].tps * targetComp * targetEnv;
 }
 
 function getAvgData(matches, qual) {
@@ -61,14 +152,41 @@ function getConf(n) {
 function updConf() {
   var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
   var conf    = getConf(matches.length);
-  var chip    = document.getElementById('conf-chip');
-  if (!chip) return;
 
-  chip.className = 'chip ' + conf.cls;
-  document.getElementById('conf-dot').style.background = conf.dot;
-  document.getElementById('conf-lbl').textContent      = conf.label;
-  document.getElementById('db-matches').textContent    = matches.length;
-  document.getElementById('db-src').textContent        = matches.length > 0 ? 'Historic look-alikes' : 'Global baseline';
+  var chip = document.getElementById('conf-chip');
+  if (chip) {
+    chip.className = 'chip ' + conf.cls;
+    document.getElementById('conf-dot').style.background = conf.dot;
+    document.getElementById('conf-lbl').textContent      = conf.label;
+  }
+
+  document.getElementById('db-matches').textContent = matches.length;
+  document.getElementById('db-src').textContent     = matches.length > 0 ? 'Historic look-alikes' : 'Global baseline';
+
+  var fill = document.getElementById('dbc-fill');
+  if (fill) {
+    fill.style.width      = Math.min(100, (matches.length / 20) * 100) + '%';
+    fill.style.background = conf.dot;
+  }
+
+  // Env button counts — all logs for that environment regardless of complexity
+  document.querySelectorAll('#env-tags .btn[data-env]').forEach(function(btn) {
+    var n = AppState.DB.filter(function(p) {
+      var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
+      return t.indexOf(btn.dataset.env) !== -1 && p.delay_profile !== 'Major';
+    }).length;
+    var s = btn.querySelector('.btn-cnt');
+    if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
+  });
+
+  // Complexity button counts — logs matching current env(s) + that complexity
+  document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(btn) {
+    var n = AppState.DB.filter(function(p) {
+      return envMatch(AppState.selEnvs, p.env_type) && p.complexity === btn.dataset.comp && p.delay_profile !== 'Major';
+    }).length;
+    var s = btn.querySelector('.btn-cnt');
+    if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
+  });
 }
 
 // Maps slider keys → quality tier names used in QUALITY config and DB matching.

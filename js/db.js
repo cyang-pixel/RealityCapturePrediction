@@ -14,7 +14,7 @@ async function loadApprovedLogs() {
     data.forEach(r => {
       AppState.DB.push({
         sq_ft:          r.sq_ft || 0,
-        env_type:       r.environment,
+        env_type:       r.environment.split(',').map(function(e) { return e.trim(); }),
         complexity:     r.complexity,
         quality_setting: getDomQ(r),
         actual_scans:   r.total_scans,

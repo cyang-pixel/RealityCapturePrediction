@@ -21,10 +21,10 @@ const SCANNERS = {
     specs: [
       '1.87 lbs ultra-light unit',
       '360° × 270° field-of-view',
-      'Fast+ 50mm · 7s · LDR',
-      'Fast 25mm · 13s · LDR',
-      'Dense 12mm · 30s · LDR+HDR',
-      'Dense+ 6mm · 75s · LDR+HDR'
+      'Fast+ 50mm · 7s',
+      'Fast 25mm · 13s',
+      'Dense 12mm · 30s',
+      'Dense+ 6mm · 75s'
     ],
     img: 'https://turningpointsystemsgroup.com/wp-content/uploads/2022/08/BLK360-Front.png'
   },
