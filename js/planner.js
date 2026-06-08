@@ -240,7 +240,7 @@ function autoBalancePlannerQT(changed) {
   var total = 0;
   QT_KEYS.forEach(k => {
     var v = parseInt(document.getElementById('pqs-' + k).value) || 0;
-    document.getElementById('pqp-' + k).textContent = v + '%';
+    document.getElementById('pqp-' + k).value = v;
     AppState.plannerQT[k] = v;
     total += v;
   });
@@ -266,8 +266,15 @@ function updatePlannerQTBar() {
 
 // ── Main calculation ──────────────────────────────────────────────────────────
 
+function getFinishMins() {
+  var hr  = parseInt(document.getElementById('finish-hr').value)  || 5;
+  var min = parseInt(document.getElementById('finish-min').value) || 0;
+  var pm  = document.getElementById('ampm-pm').classList.contains('active');
+  return (hr % 12 + (pm ? 12 : 0)) * 60 + min;
+}
+
 function calculate() {
-  var finishMins  = parseInt(document.getElementById('finish-time').value) || 1020;
+  var finishMins  = getFinishMins();
   var floorCount  = AppState.floorsMode === 'multi'
     ? parseInt(document.getElementById('floor-count').value) || 2
     : 1;
@@ -340,4 +347,151 @@ function calculate() {
   }
 
   updConf();
+}
+
+// ── Keyboard input sync for planner quality sliders ───────────────────────────
+
+function syncSliderFromInput(key, input) {
+  var val = parseInt(input.value) || 0;
+  val = Math.max(0, Math.min(100, Math.round(val / 5) * 5));
+  input.value = val;
+  document.getElementById('pqs-' + key).value = val;
+  autoBalancePlannerQT(key);
+}
+
+// ── Save mission output ───────────────────────────────────────────────────────
+
+function showSaveForm() {
+  document.getElementById('save-idle').style.display = 'none';
+  document.getElementById('save-form').style.display = 'block';
+  document.getElementById('save-name').focus();
+}
+
+function hideSaveForm() {
+  document.getElementById('save-form').style.display = 'none';
+  document.getElementById('save-idle').style.display = 'block';
+  document.getElementById('save-name').value = '';
+}
+
+function saveMission() {
+  var name = document.getElementById('save-name').value.trim();
+  if (!name) { document.getElementById('save-name').focus(); return; }
+
+  var missions = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  missions.unshift({
+    id:       Date.now(),
+    name:     name,
+    setups:   document.getElementById('res-setups').textContent,
+    duration: document.getElementById('res-dur').textContent,
+    hours:    document.getElementById('res-hours').textContent,
+    batt:     document.getElementById('res-brec').textContent,
+    data:     document.getElementById('res-data').textContent,
+    start:    document.getElementById('arr-time').textContent,
+    ts:       new Date().toLocaleDateString(),
+    params: {
+      calcMode:   AppState.calcMode,
+      calcValue:  document.getElementById('calc-value').value,
+      envs:       Array.from(AppState.selEnvs),
+      complexity: AppState.complexity,
+      qt:         { s: AppState.plannerQT.s, m: AppState.plannerQT.m, d: AppState.plannerQT.d, dp: AppState.plannerQT.dp },
+      floorsMode: AppState.floorsMode,
+      floorCount: document.getElementById('floor-count').value,
+      conds:      Array.from(AppState.selConds),
+      finishHr:   document.getElementById('finish-hr').value,
+      finishMin:  document.getElementById('finish-min').value,
+      finishAmPm: document.getElementById('ampm-pm').classList.contains('active') ? 'PM' : 'AM'
+    }
+  });
+  localStorage.setItem('rc_missions', JSON.stringify(missions));
+  hideSaveForm();
+  renderSaved();
+}
+
+function loadMission(id) {
+  var missions = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  var m = missions.find(function(x) { return x.id === id; });
+  if (!m || !m.params) return;
+  var p = m.params;
+
+  // Calc mode
+  document.querySelectorAll('#calc-mode-grp .btn[data-mode]').forEach(function(b) {
+    if (b.dataset.mode === p.calcMode) setCalcMode(p.calcMode, b);
+  });
+  document.getElementById('calc-value').value = p.calcValue;
+
+  // Environments
+  AppState.selEnvs = new Set(p.envs);
+  document.querySelectorAll('#env-tags .btn[data-env]').forEach(function(b) {
+    b.classList.toggle('active', AppState.selEnvs.has(b.dataset.env));
+  });
+  var n = AppState.selEnvs.size;
+  document.getElementById('env-note').textContent = n === 0
+    ? 'General prediction — all environments blended'
+    : n + ' type' + (n > 1 ? 's' : '') + ' selected' + (n > 1 ? ' — baselines blended' : '');
+
+  // Complexity
+  AppState.complexity = p.complexity;
+  document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.comp === p.complexity);
+  });
+
+  // Quality tiers
+  QT_KEYS.forEach(function(k) {
+    var v = p.qt ? (p.qt[k] || 0) : 0;
+    document.getElementById('pqs-' + k).value = v;
+    document.getElementById('pqp-' + k).value = v;
+    AppState.plannerQT[k] = v;
+  });
+  updatePlannerQTBar();
+  var qtTotal = QT_KEYS.reduce(function(a, k) { return a + AppState.plannerQT[k]; }, 0);
+  var td = document.getElementById('pqt-total');
+  td.textContent = qtTotal + '%';
+  td.className   = 'qt-total-val ' + (qtTotal === 100 ? 'qt-ok' : 'qt-bad');
+
+  // Floors
+  AppState.floorsMode = p.floorsMode || 'single';
+  document.querySelectorAll('#floors-grp .btn').forEach(function(b) {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(AppState.floorsMode === 'multi' ? 'multi' : 'single'));
+  });
+  document.getElementById('flr-row').className = 'flrr' + (AppState.floorsMode === 'multi' ? ' show' : '');
+  if (p.floorCount) document.getElementById('floor-count').value = p.floorCount;
+
+  // Site conditions
+  AppState.selConds = new Set(p.conds || ['none']);
+  document.querySelectorAll('#site-cond-grp .btn').forEach(function(b) {
+    b.classList.toggle('active', AppState.selConds.has(b.dataset.val));
+  });
+
+  // Finish time
+  if (p.finishHr)  document.getElementById('finish-hr').value  = p.finishHr;
+  if (p.finishMin !== undefined) document.getElementById('finish-min').value = p.finishMin;
+  if (p.finishAmPm) {
+    document.getElementById('ampm-am').classList.toggle('active', p.finishAmPm === 'AM');
+    document.getElementById('ampm-pm').classList.toggle('active', p.finishAmPm === 'PM');
+  }
+
+  updConf();
+  calculate();
+  document.querySelector('.lp').scrollTop = 0;
+}
+
+function deleteSaved(id) {
+  var missions = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  missions = missions.filter(function(m) { return m.id !== id; });
+  localStorage.setItem('rc_missions', JSON.stringify(missions));
+  renderSaved();
+}
+
+function renderSaved() {
+  var missions = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  var el = document.getElementById('saved-list');
+  if (!el) return;
+  if (missions.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = missions.map(function(m) {
+    return '<div class="saved-card" onclick="loadMission(' + m.id + ')">'
+      + '<button class="saved-card-del" onclick="event.stopPropagation();deleteSaved(' + m.id + ')">&#x2715;</button>'
+      + '<div class="saved-card-name">' + m.name + '</div>'
+      + '<div class="saved-card-meta">' + m.start + ' start &middot; ' + m.setups + ' &middot; ' + m.duration + ' &middot; ' + m.ts + '</div>'
+      + '</div>';
+  }).join('');
 }

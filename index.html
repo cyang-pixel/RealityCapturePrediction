@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=9">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -197,17 +197,12 @@
         <!-- Left panel: inputs -->
         <div class="lp">
           <div class="scc">
+            <div class="scc-img">
+              <img id="sc-img" src="https://turningpointsystemsgroup.com/wp-content/uploads/2022/08/BLK360-Front.png" alt="Scanner">
+            </div>
             <div class="scc-info">
               <div class="scn" id="sc-name">Leica BLK360 G2</div>
               <div class="scs" id="sc-sub">Compact field scanner optimised for rapid deployment.</div>
-              <div class="splist" id="sc-specs">
-                <div class="spi"><div class="spd"></div>1.87 lbs ultra-light unit</div>
-                <div class="spi"><div class="spd"></div>360&#xB0; &#xD7; 270&#xB0; field-of-view</div>
-                <div class="spi"><div class="spd"></div>VIS tracking &#x2014; fast capture</div>
-              </div>
-            </div>
-            <div class="scc-img">
-              <img id="sc-img" src="https://turningpointsystemsgroup.com/wp-content/uploads/2022/08/BLK360-Front.png" alt="Scanner">
             </div>
           </div>
 
@@ -215,9 +210,10 @@
             <div class="pb">
               <div class="slbl">Physical footprint</div>
               <div class="sw" id="calc-mode-grp" style="margin-bottom:10px">
-                <button class="btn grow active" onclick="setCalcMode('setups',this)">Enter scan count</button>
-                <button class="btn grow" onclick="setCalcMode('area',this)">Enter area (sq ft)</button>
+                <button class="btn grow active" data-mode="setups" onclick="setCalcMode('setups',this)">Enter scan count</button>
+                <button class="btn grow" data-mode="area" onclick="setCalcMode('area',this)">Enter area (sq ft) <span class="beta-tag">Beta</span></button>
               </div>
+              <div class="beta-warn" id="area-beta-warn">&#x26A0; Area-based estimation is experimental and may be less accurate. Use scan count for better results.</div>
               <div class="fg">
                 <label class="flbl" id="calc-label">Scan count</label>
                 <input type="text" class="fi" id="calc-value" value="50" oninput="fmtComma(this)"
@@ -243,7 +239,20 @@
             <div class="frow">
               <div class="fg">
                 <label class="flbl">Target finish time</label>
-                <select class="fi" id="finish-time"></select>
+                <div class="time-picker">
+                  <select class="fi time-sel" id="finish-hr"></select>
+                  <span class="time-sep">:</span>
+                  <select class="fi time-sel" id="finish-min">
+                    <option value="0">00</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                    <option value="45">45</option>
+                  </select>
+                  <div class="time-ampm">
+                    <button class="btn time-ampm-btn" id="ampm-am" onclick="setAmPm('AM',this)">AM</button>
+                    <button class="btn time-ampm-btn active" id="ampm-pm" onclick="setAmPm('PM',this)">PM</button>
+                  </div>
+                </div>
               </div>
               <div class="fg">
                 <label class="flbl">Spatial complexity</label>
@@ -259,24 +268,24 @@
               <div class="slbl">Scan quality tier</div>
               <div class="qt-slider-section" style="margin-top:8px">
                 <div class="qt-slider-row">
-                  <span class="qt-slider-label">Fast+ 50mm</span>
+                  <span class="qt-slider-label">Fast+ 50mm <span style="font-size:10px;color:#bbb;font-weight:400">· 7s</span></span>
                   <input type="range" class="qt-slider" id="pqs-s"  min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('s')">
-                  <span class="qt-pct-display" id="pqp-s">0%</span>
+                  <input type="number" class="qt-pct-input" id="pqp-s" value="0" min="0" max="100" step="5" oninput="syncSliderFromInput('s',this)"><span class="qt-pct-unit">%</span>
                 </div>
                 <div class="qt-slider-row">
-                  <span class="qt-slider-label">Fast 25mm</span>
+                  <span class="qt-slider-label">Fast 25mm <span style="font-size:10px;color:#bbb;font-weight:400">· 13s</span></span>
                   <input type="range" class="qt-slider" id="pqs-m"  min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('m')">
-                  <span class="qt-pct-display" id="pqp-m">0%</span>
+                  <input type="number" class="qt-pct-input" id="pqp-m" value="0" min="0" max="100" step="5" oninput="syncSliderFromInput('m',this)"><span class="qt-pct-unit">%</span>
                 </div>
                 <div class="qt-slider-row">
-                  <span class="qt-slider-label">Dense 12mm</span>
+                  <span class="qt-slider-label">Dense 12mm <span style="font-size:10px;color:#bbb;font-weight:400">· 30s</span></span>
                   <input type="range" class="qt-slider" id="pqs-d"  min="0" max="100" value="100" step="5" oninput="autoBalancePlannerQT('d')">
-                  <span class="qt-pct-display" id="pqp-d">100%</span>
+                  <input type="number" class="qt-pct-input" id="pqp-d" value="100" min="0" max="100" step="5" oninput="syncSliderFromInput('d',this)"><span class="qt-pct-unit">%</span>
                 </div>
                 <div class="qt-slider-row">
-                  <span class="qt-slider-label">Dense+ 6mm</span>
+                  <span class="qt-slider-label">Dense+ 6mm <span style="font-size:10px;color:#bbb;font-weight:400">· 75s</span></span>
                   <input type="range" class="qt-slider" id="pqs-dp" min="0" max="100" value="0"   step="5" oninput="autoBalancePlannerQT('dp')">
-                  <span class="qt-pct-display" id="pqp-dp">0%</span>
+                  <input type="number" class="qt-pct-input" id="pqp-dp" value="0" min="0" max="100" step="5" oninput="syncSliderFromInput('dp',this)"><span class="qt-pct-unit">%</span>
                 </div>
                 <div class="qt-total-row">
                   <span class="qt-total-lbl">Total</span>
@@ -316,17 +325,21 @@
                 <button class="btn"        data-val="restricted"   data-mult="0.12" onclick="toggleCond(this)">Restricted access +12%</button>
               </div>
             </div>
+            <div style="padding-top:8px">
+              <button class="gbtn-wrap gbtn-main" onclick="calculate()">
+                <div class="gbtn-main-inner">
+                  <span class="gbtn-label">Generate Requirements</span>
+                  <span class="gbtn-sub">Calculate arrival · Duration · Batteries · Data</span>
+                </div>
+                <span class="gbtn-arrow">&#x2192;</span>
+              </button>
+            </div>
           </div><!-- /params-area -->
         </div><!-- /lp -->
 
         <!-- Right panel: outputs -->
         <div class="rp">
           <div class="slbl" style="margin-bottom:12px">Mission output</div>
-          <button class="gbtn-wrap" id="gen-btn" onclick="calculate()">
-            <span class="gbtn-label">Generate requirements</span>
-            <span class="gbtn-sub">Tap to calculate arrival &middot; duration &middot; batteries &middot; data</span>
-            <span class="gbtn-arrow">&#x2192;</span>
-          </button>
 
           <div class="ac">
             <div class="albl">Recommended start time</div>
@@ -356,6 +369,19 @@
             <div class="dbr"><span class="dbk">Approved logs in model</span><span class="dbv" id="db-total">0</span></div>
             <div class="dbr"><span class="dbk">Data source</span><span class="dbv" id="db-src">—</span></div>
           </div>
+          <div class="save-sec" id="save-sec">
+            <div class="save-row" id="save-idle">
+              <button class="save-btn" onclick="showSaveForm()">&#x1F4BE; Save mission output</button>
+            </div>
+            <div class="save-form" id="save-form" style="display:none">
+              <input type="text" class="fi" id="save-name" placeholder="Mission name…" style="margin-bottom:8px">
+              <div style="display:flex;gap:8px">
+                <button class="save-confirm-btn" onclick="saveMission()">Save</button>
+                <button class="save-cancel-btn" onclick="hideSaveForm()">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div class="saved-list" id="saved-list"></div>
         </div><!-- /rp -->
       </div><!-- /content -->
     </div><!-- /page-planner -->
@@ -390,15 +416,15 @@
 
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
-<script src="js/config.js?v=3"></script>
-<script src="js/state.js?v=3"></script>
-<script src="js/utils.js?v=3"></script>
-<script src="js/db.js?v=4"></script>
-<script src="js/planner.js?v=6"></script>
-<script src="js/logs.js?v=4"></script>
-<script src="js/modal.js?v=3"></script>
-<script src="js/ui.js?v=4"></script>
-<script src="js/main.js?v=3"></script>
+<script src="js/config.js?v=4"></script>
+<script src="js/state.js?v=4"></script>
+<script src="js/utils.js?v=4"></script>
+<script src="js/db.js?v=5"></script>
+<script src="js/planner.js?v=10"></script>
+<script src="js/logs.js?v=5"></script>
+<script src="js/modal.js?v=4"></script>
+<script src="js/ui.js?v=8"></script>
+<script src="js/main.js?v=6"></script>
 
 </body>
 </html>

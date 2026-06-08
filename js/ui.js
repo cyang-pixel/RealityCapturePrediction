@@ -15,9 +15,6 @@ function selHW(el) {
   var s = SCANNERS[el.dataset.hw];
   document.getElementById('sc-name').textContent  = s.name;
   document.getElementById('sc-sub').textContent   = s.sub;
-  document.getElementById('sc-specs').innerHTML   = s.specs
-    .map(x => '<div class="spi"><div class="spd"></div>' + x + '</div>')
-    .join('');
   document.getElementById('sc-img').src           = s.img;
   document.getElementById('mh-name').textContent  = s.name;
   document.getElementById('mh-status').innerHTML  = s.available
@@ -31,12 +28,12 @@ function selHW(el) {
     banner.classList.add('show');
     pa.style.opacity       = '.4';
     pa.style.pointerEvents = 'none';
-    gb.disabled            = true;
+    if (gb) gb.disabled    = true;
   } else {
     banner.classList.remove('show');
     pa.style.opacity       = '1';
     pa.style.pointerEvents = '';
-    gb.disabled            = false;
+    if (gb) gb.disabled    = false;
   }
 
   // Always jump to planner when a scanner is clicked.
@@ -92,6 +89,7 @@ function setCalcMode(mode, btn) {
   var inp = document.getElementById('calc-value');
   if (mode === 'area') { lbl.textContent = 'Total area (sq ft)'; inp.value = '10,000'; }
   else                 { lbl.textContent = 'Scan count';          inp.value = '50';     }
+  document.getElementById('area-beta-warn').style.display = mode === 'area' ? 'block' : 'none';
 }
 
 function setOpt(key, val, btn) {
@@ -105,6 +103,11 @@ function setQuality(val, btn) {
   document.getElementById('quality-grp').querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('quality-hint').innerHTML = QUALITY[val].hint;
+}
+
+function setAmPm(val, btn) {
+  document.getElementById('ampm-am').classList.toggle('active', val === 'AM');
+  document.getElementById('ampm-pm').classList.toggle('active', val === 'PM');
 }
 
 function setFloors(mode, btn) {
