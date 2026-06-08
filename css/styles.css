@@ -42,22 +42,37 @@ body, html {
   background: transparent;
   width: 100%;
   text-align: left;
-  border-left: 2px solid transparent;
+  border-left: 3px solid transparent;
   position: relative;
 }
 .scb:hover           { background: #1a1a1a; border-left-color: #555; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 6px 18px rgba(0,0,0,.3); transform: translateY(-1px); }
-.scb.active          { background: #fff; border-left-color: #fff; }
+.scb.active          { background: #1a1a1a; }
 .scbi {
   width: 36px; height: 36px; border-radius: 8px;
   background: #222; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden; transition: background .2s;
 }
-.scb.active .scbi    { background: #f0f0f0; }
 .scbi img            { width: 30px; height: 30px; object-fit: contain; }
 .scbn                { font-size: 12px; font-weight: 700; color: #bbb; transition: color .2s; }
-.scb.active .scbn    { color: #111; }
 .scbs                { font-size: 10px; color: #444; margin-top: 1px; transition: color .2s; }
-.scb.active .scbs    { color: #777; }
+
+/* BLK360 — green */
+.scb[data-hw="BLK360"].active                { border-left-color: #0F6E56; background: #0a2520; }
+.scb[data-hw="BLK360"].active .scbn          { color: #5DCAA5; }
+.scb[data-hw="BLK360"].active .scbs          { color: #2a6e57; }
+.scb[data-hw="BLK360"].active .scbi          { background: #0d3528; }
+
+/* RTC360 — amber */
+.scb[data-hw="RTC360"].active                { border-left-color: #D4851A; background: #251a0a; }
+.scb[data-hw="RTC360"].active .scbn          { color: #EFA050; }
+.scb[data-hw="RTC360"].active .scbs          { color: #7a4e1a; }
+.scb[data-hw="RTC360"].active .scbi          { background: #2e1e08; }
+
+/* VLX — blue */
+.scb[data-hw="VLX"].active                   { border-left-color: #4A8FD4; background: #0a1525; }
+.scb[data-hw="VLX"].active .scbn             { color: #7FB8E8; }
+.scb[data-hw="VLX"].active .scbs             { color: #2a4e7a; }
+.scb[data-hw="VLX"].active .scbi             { background: #0d1e35; }
 
 /* Badges */
 .badge { margin-left: auto; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
@@ -235,10 +250,28 @@ select.fi {
 
 /* Scanner sections */
 .sc-section      { margin-bottom: 22px; }
-.sc-sec-hdr      { display: flex; align-items: center; gap: 8px; padding: 7px 12px; background: #F7F7F7; border-radius: 8px; margin-bottom: 8px; border: 1px solid #EBEBEB; }
-.sc-sec-name     { font-size: 11px; font-weight: 800; color: #333; letter-spacing: .3px; flex: 1; }
-.sc-sec-cnt      { font-size: 10px; font-weight: 600; color: #999; background: #EBEBEB; border-radius: 10px; padding: 2px 8px; }
+.sc-sec-hdr      { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid transparent; }
+.sc-sec-name     { font-size: 11px; font-weight: 800; letter-spacing: .3px; flex: 1; }
+.sc-sec-cnt      { font-size: 10px; font-weight: 600; border-radius: 10px; padding: 2px 8px; }
 .sc-sec-empty    { font-size: 12px; color: #ccc; padding: 10px 14px; font-style: italic; }
+
+/* BLK360 — green */
+.sc-section--BLK360 .sc-sec-hdr  { background: #F0FBF6; border-left-color: #0F6E56; }
+.sc-section--BLK360 .sc-sec-name { color: #0A5040; }
+.sc-section--BLK360 .sc-sec-cnt  { background: #C8EFE0; color: #0A5040; }
+.sc-section--BLK360 .lcard       { border-left: 3px solid #0F6E56; }
+
+/* RTC360 — amber */
+.sc-section--RTC360 .sc-sec-hdr  { background: #FFF8EE; border-left-color: #D4851A; }
+.sc-section--RTC360 .sc-sec-name { color: #8B5500; }
+.sc-section--RTC360 .sc-sec-cnt  { background: #FAEEDA; color: #8B5500; }
+.sc-section--RTC360 .lcard       { border-left: 3px solid #D4851A; }
+
+/* VLX — blue */
+.sc-section--VLX .sc-sec-hdr     { background: #EEF4FB; border-left-color: #4A8FD4; }
+.sc-section--VLX .sc-sec-name    { color: #185FA5; }
+.sc-section--VLX .sc-sec-cnt     { background: #D4E8F7; color: #185FA5; }
+.sc-section--VLX .lcard          { border-left: 3px solid #4A8FD4; }
 
 /* Log cards */
 .lcard        { background: #fff; border: 1px solid #E2E2E2; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all .2s; }

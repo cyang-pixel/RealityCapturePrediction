@@ -23,7 +23,7 @@ function renderLogList() {
   SCANNER_SECTIONS.forEach(function(sc) {
     var logs = filtered.filter(function(l) { return normScanner(l.scanner) === sc.key; });
     var cnt  = logs.length;
-    html += '<div class="sc-section">'
+    html += '<div class="sc-section sc-section--' + sc.key + '">'
       + '<div class="sc-sec-hdr">'
       +   '<span class="sc-sec-name">' + sc.label + '</span>'
       +   '<span class="sc-sec-cnt">' + cnt + ' log' + (cnt !== 1 ? 's' : '') + '</span>'
