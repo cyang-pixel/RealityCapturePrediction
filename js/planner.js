@@ -8,6 +8,7 @@ function envMatch(envSet, envType) {
 
 function lookAlikes(envSet, comp) {
   return AppState.DB.filter(p =>
+    p.scanner === AppState.selScanner &&
     envMatch(envSet, p.env_type) &&
     p.complexity === comp &&
     p.delay_profile !== 'Major'
@@ -153,13 +154,6 @@ function updConf() {
   var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
   var conf    = getConf(matches.length);
 
-  var chip = document.getElementById('conf-chip');
-  if (chip) {
-    chip.className = 'chip ' + conf.cls;
-    document.getElementById('conf-dot').style.background = conf.dot;
-    document.getElementById('conf-lbl').textContent      = conf.label;
-  }
-
   document.getElementById('db-matches').textContent = matches.length;
   document.getElementById('db-src').textContent     = matches.length > 0 ? 'Historic look-alikes' : 'Global baseline';
 
@@ -169,43 +163,63 @@ function updConf() {
     fill.style.background = conf.dot;
   }
 
-  // Env button counts — all logs for that environment regardless of complexity
+  // Env button counts — logs for this scanner + that environment
   document.querySelectorAll('#env-tags .btn[data-env]').forEach(function(btn) {
     var n = AppState.DB.filter(function(p) {
       var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
-      return t.indexOf(btn.dataset.env) !== -1 && p.delay_profile !== 'Major';
+      return p.scanner === AppState.selScanner && t.indexOf(btn.dataset.env) !== -1 && p.delay_profile !== 'Major';
     }).length;
     var s = btn.querySelector('.btn-cnt');
     if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
   });
 
-  // Complexity button counts — logs matching current env(s) + that complexity
+  // Complexity button counts — logs for this scanner + current env(s) + that complexity
   document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(btn) {
     var n = AppState.DB.filter(function(p) {
-      return envMatch(AppState.selEnvs, p.env_type) && p.complexity === btn.dataset.comp && p.delay_profile !== 'Major';
+      return p.scanner === AppState.selScanner && envMatch(AppState.selEnvs, p.env_type) && p.complexity === btn.dataset.comp && p.delay_profile !== 'Major';
     }).length;
     var s = btn.querySelector('.btn-cnt');
     if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
   });
 }
 
-// Maps slider keys → quality tier names used in QUALITY config and DB matching.
-var QT_QUAL_MAP = {
-  s:  'Fast+ (50mm)',
-  m:  'Fast (25mm)',
-  d:  'Dense (12mm)',
-  dp: 'Dense+ (6mm)'
-};
+// ── Quality tier helpers ──────────────────────────────────────────────────────
+
+function getQTCfg() { return SCANNER_QT[AppState.selScanner] || SCANNER_QT.BLK360; }
+
+function renderQTSliders(hw) {
+  var cfg  = SCANNER_QT[hw] || SCANNER_QT.BLK360;
+  var html = '<div class="qt-slider-section">';
+  cfg.keys.forEach(function(k) {
+    var def = cfg.defaults[k] || 0;
+    html += '<div class="qt-slider-row">'
+      + '<span class="qt-slider-label">' + cfg.labels[k]
+      + ' <span style="font-size:10px;color:#bbb;font-weight:400">' + cfg.hints[k] + '</span></span>'
+      + '<input type="range" class="qt-slider" id="pqs-' + k + '" min="0" max="100" value="' + def + '" step="5" oninput="autoBalancePlannerQT(\'' + k + '\')">'
+      + '<input type="number" class="qt-pct-input" id="pqp-' + k + '" value="' + def + '" min="0" max="100" step="5" oninput="syncSliderFromInput(\'' + k + '\',this)">'
+      + '<span class="qt-pct-unit">%</span>'
+      + '</div>';
+  });
+  html += '<div class="qt-total-row"><span class="qt-total-lbl">Total</span>'
+    + '<span class="qt-total-val qt-ok" id="pqt-total">100%</span></div></div>';
+  document.getElementById('qt-sliders-wrap').innerHTML = html;
+
+  var newQT = {};
+  cfg.keys.forEach(function(k) { newQT[k] = cfg.defaults[k] || 0; });
+  AppState.plannerQT = newQT;
+  updatePlannerQTBar();
+}
 
 // ── Planner quality-tier sliders ──────────────────────────────────────────────
 
 function autoBalancePlannerQT(changed) {
+  var cfg = getQTCfg();
   var val = parseInt(document.getElementById('pqs-' + changed).value) || 0;
   val = Math.max(0, Math.min(100, Math.round(val / 5) * 5));
   document.getElementById('pqs-' + changed).value = val;
   AppState.plannerQT[changed] = val;
 
-  var others    = QT_KEYS.filter(k => k !== changed);
+  var others    = cfg.keys.filter(function(k) { return k !== changed; });
   var remaining = 100 - val;
   var otherVals = {}, otherSum = 0;
   others.forEach(k => {
@@ -237,8 +251,9 @@ function autoBalancePlannerQT(changed) {
     others.forEach(k => { document.getElementById('pqs-' + k).value = scaled[k]; AppState.plannerQT[k] = scaled[k]; });
   }
 
+  var cfg2  = getQTCfg();
   var total = 0;
-  QT_KEYS.forEach(k => {
+  cfg2.keys.forEach(function(k) {
     var v = parseInt(document.getElementById('pqs-' + k).value) || 0;
     document.getElementById('pqp-' + k).value = v;
     AppState.plannerQT[k] = v;
@@ -251,13 +266,14 @@ function autoBalancePlannerQT(changed) {
 }
 
 function updatePlannerQTBar() {
+  var cfg     = getQTCfg();
   var barSegs = '', legend = '';
-  QT_KEYS.forEach(k => {
+  cfg.keys.forEach(function(k) {
     var pct = AppState.plannerQT[k] || 0;
     if (pct > 0) {
-      var col = QTC[QT_QUAL_MAP[k]];
+      var col = QTC[cfg.map[k]];
       barSegs += '<div class="qt-seg" style="width:' + pct + '%;background:' + col + '"></div>';
-      legend  += '<div class="qt-li"><div class="qt-dot" style="background:' + col + '"></div>' + QT_QUAL_MAP[k] + ' ' + pct + '%</div>';
+      legend  += '<div class="qt-li"><div class="qt-dot" style="background:' + col + '"></div>' + cfg.labels[k] + ' ' + pct + '%</div>';
     }
   });
   document.getElementById('planner-qt-bar').innerHTML    = barSegs || '<div style="width:100%;background:#EEEEEE;height:10px;border-radius:5px"></div>';
@@ -282,12 +298,13 @@ function calculate() {
   var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
 
   // Weighted quality values across all active tiers
-  var pqt = AppState.plannerQT;
+  var qtCfg = getQTCfg();
+  var pqt   = AppState.plannerQT;
   var weightedSfMult = 0, weightedTps = 0, weightedData = 0, weightedBatt = 0;
-  QT_KEYS.forEach(k => {
+  qtCfg.keys.forEach(function(k) {
     var pct = (pqt[k] || 0) / 100;
     if (pct > 0) {
-      var qual = QT_QUAL_MAP[k];
+      var qual = qtCfg.map[k];
       weightedSfMult += pct * QUALITY[qual].sfScanMult;
       weightedTps    += pct * getAvgTpS(AppState.selEnvs, AppState.complexity, qual, matches);
       weightedData   += pct * getAvgData(matches, qual);
@@ -310,15 +327,17 @@ function calculate() {
   var D_min  = D_adj * 0.875;
   var D_max  = D_adj * 1.125;
 
-  var battMin   = Math.ceil((D_adj / 60) / weightedBatt);
-  var battRec   = battMin + 1;
-  var totalData = Ps * weightedData;
+  var battTotal   = qtCfg.battTotal   || TOTAL_BATT;
+  var battPerUnit = qtCfg.battPerUnit || 1;
+  var battMin     = Math.ceil((D_adj / 60) / weightedBatt) * battPerUnit;
+  var battRec     = battMin + battPerUnit;
+  var totalData   = Ps * weightedData;
 
   document.getElementById('arr-time').textContent = minsToStr(finishMins - D_max);
 
-  var qualDesc = QT_KEYS
-    .filter(k => pqt[k] > 0)
-    .map(k => QT_QUAL_MAP[k] + ' ' + pqt[k] + '%')
+  var qualDesc = qtCfg.keys
+    .filter(function(k) { return pqt[k] > 0; })
+    .map(function(k) { return qtCfg.labels[k] + ' ' + pqt[k] + '%'; })
     .join(' · ');
   document.getElementById('arr-note').textContent = Ps + ' setups · ' + qualDesc;
 
@@ -328,18 +347,23 @@ function calculate() {
     el.className   = 'rv' + (cls ? ' ' + cls : '');
   }
 
+  var kitLabel = battPerUnit > 1
+    ? battTotal + ' batteries (' + battPerUnit + ' active)'
+    : battTotal + ' batteries';
+
   setResult('res-setups', Ps + ' positions');
   setResult('res-dur',    Math.round(D_min) + ' – ' + Math.round(D_max) + ' mins');
   setResult('res-hours',  (D_min / 60).toFixed(1) + ' – ' + (D_max / 60).toFixed(1) + ' hrs');
-  setResult('res-bmin',   battMin + ' packs',            battMin > TOTAL_BATT ? 'danger' : '');
-  setResult('res-brec',   battRec + ' packs (+1 buffer)', battRec > TOTAL_BATT ? 'warn'   : '');
+  setResult('res-bmin',   battMin + ' batteries',              battMin > battTotal ? 'danger' : '');
+  setResult('res-brec',   battRec + ' batteries (+1 buffer)',  battRec > battTotal ? 'warn'   : '');
+  setResult('res-bkit',   kitLabel);
   setResult('res-data',   (totalData * 0.875).toFixed(1) + ' – ' + (totalData * 1.125).toFixed(1) + ' GB');
 
   var ab = document.getElementById('alert-box');
-  if (battRec > TOTAL_BATT) {
+  if (battRec > battTotal) {
     ab.className   = 'ab adanger show';
-    ab.textContent = 'Battery shortage — ' + battRec + ' packs recommended, kit holds ' + TOTAL_BATT + '.';
-  } else if (battRec === TOTAL_BATT) {
+    ab.textContent = 'Battery shortage — ' + battRec + ' batteries recommended, kit holds ' + battTotal + '.';
+  } else if (battRec === battTotal) {
     ab.className   = 'ab awarn show';
     ab.textContent = 'Full kit in use. Plan a mid-scan charge window.';
   } else {
@@ -389,6 +413,7 @@ function saveMission() {
     start:    document.getElementById('arr-time').textContent,
     ts:       new Date().toLocaleDateString(),
     params: {
+      scanner:    AppState.selScanner,
       calcMode:   AppState.calcMode,
       calcValue:  document.getElementById('calc-value').value,
       envs:       Array.from(AppState.selEnvs),
@@ -435,15 +460,23 @@ function loadMission(id) {
     b.classList.toggle('active', b.dataset.comp === p.complexity);
   });
 
-  // Quality tiers
-  QT_KEYS.forEach(function(k) {
-    var v = p.qt ? (p.qt[k] || 0) : 0;
-    document.getElementById('pqs-' + k).value = v;
-    document.getElementById('pqp-' + k).value = v;
-    AppState.plannerQT[k] = v;
-  });
+  // Quality tiers — re-render sliders for the saved scanner first
+  var savedScanner = p.scanner || 'BLK360';
+  AppState.selScanner = savedScanner;
+  renderQTSliders(savedScanner);
+  var qtCfgL = getQTCfg();
+  if (p.qt) {
+    qtCfgL.keys.forEach(function(k) {
+      var v = p.qt[k] || 0;
+      var rs = document.getElementById('pqs-' + k);
+      var rp = document.getElementById('pqp-' + k);
+      if (rs) rs.value = v;
+      if (rp) rp.value = v;
+      AppState.plannerQT[k] = v;
+    });
+  }
   updatePlannerQTBar();
-  var qtTotal = QT_KEYS.reduce(function(a, k) { return a + AppState.plannerQT[k]; }, 0);
+  var qtTotal = qtCfgL.keys.reduce(function(a, k) { return a + (AppState.plannerQT[k] || 0); }, 0);
   var td = document.getElementById('pqt-total');
   td.textContent = qtTotal + '%';
   td.className   = 'qt-total-val ' + (qtTotal === 100 ? 'qt-ok' : 'qt-bad');
@@ -483,7 +516,11 @@ function deleteSaved(id) {
 }
 
 function renderSaved() {
-  var missions = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  var all      = JSON.parse(localStorage.getItem('rc_missions') || '[]');
+  var missions = all.filter(function(m) {
+    var sc = m.params && m.params.scanner ? m.params.scanner : 'BLK360';
+    return sc === AppState.selScanner;
+  });
   var el = document.getElementById('saved-list');
   if (!el) return;
   if (missions.length === 0) { el.innerHTML = ''; return; }

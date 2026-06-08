@@ -7,49 +7,64 @@ function filterLogs(f, btn) {
   renderLogList();
 }
 
+var SCANNER_SECTIONS = [
+  { key: 'BLK360', label: 'BLK360 G2' },
+  { key: 'RTC360', label: 'RTC360' },
+  { key: 'VLX',    label: 'NavVis VLX' }
+];
+
 function renderLogList() {
   var list     = document.getElementById('log-list');
   var filtered = AppState.logFilter === 'all'
     ? AppState.allLogs
     : AppState.allLogs.filter(l => l.status === AppState.logFilter);
 
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="empty-st"><div style="font-size:36px">&#x1F4ED;</div><p>No logs here yet</p></div>';
-    return;
-  }
-
-  list.innerHTML = filtered.map(l => {
-    var sc  = l.status === 'approved' ? 'sa' : l.status === 'rejected' ? 'sr' : 'sp';
-    var sel = AppState.selLogId === l.id ? ' sel' : '';
-    var dt  = fmtDateTime(l.created_at);
-    var dom = l.delay_level && l.delay_level !== 'None'
-      ? '<span class="pill amber">' + l.delay_level + ' delay</span>'
-      : '';
-    var fed = l.fed_to_model ? '<span class="pill green">In model</span>' : '';
-
-    return (
-      '<div class="lcard' + sel + '" onclick="selectLog(\'' + l.id + '\')">'
-      + '<div class="lcard-top">'
-      +   '<div class="lcard-name">' + escHtml(l.project_name) + '</div>'
-      +   '<div>'
-      +     '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:3px">'
-      +       '<span class="sbadge ' + sc + '">' + l.status + '</span>'
-      +     '</div>'
-      +     '<div class="lcard-date">' + dt.date + '</div>'
-      +     '<div class="lcard-time">' + dt.time + '</div>'
-      +   '</div>'
-      + '</div>'
-      + '<div class="lcard-meta">'
-      +   '<span class="pill">' + escHtml(l.scanner) + '</span>'
-      +   '<span class="pill blue">' + escHtml(l.environment) + '</span>'
-      +   '<span class="pill">' + escHtml(l.complexity) + '</span>'
-      +   '<span class="pill">' + l.total_scans + ' scans</span>'
-      +   '<span class="pill">' + l.batteries_used + ' batt</span>'
-      +   dom + fed
-      + '</div>'
-      + '</div>'
-    );
-  }).join('');
+  var html = '';
+  SCANNER_SECTIONS.forEach(function(sc) {
+    var logs = filtered.filter(function(l) { return normScanner(l.scanner) === sc.key; });
+    var cnt  = logs.length;
+    html += '<div class="sc-section">'
+      + '<div class="sc-sec-hdr">'
+      +   '<span class="sc-sec-name">' + sc.label + '</span>'
+      +   '<span class="sc-sec-cnt">' + cnt + ' log' + (cnt !== 1 ? 's' : '') + '</span>'
+      + '</div>';
+    if (cnt === 0) {
+      html += '<div class="sc-sec-empty">No logs yet</div>';
+    } else {
+      html += logs.map(function(l) {
+        var st  = l.status === 'approved' ? 'sa' : l.status === 'rejected' ? 'sr' : 'sp';
+        var sel = AppState.selLogId === l.id ? ' sel' : '';
+        var dt  = fmtDateTime(l.created_at);
+        var dom = l.delay_level && l.delay_level !== 'None'
+          ? '<span class="pill amber">' + l.delay_level + ' delay</span>'
+          : '';
+        var fed = l.fed_to_model ? '<span class="pill green">In model</span>' : '';
+        return (
+          '<div class="lcard' + sel + '" onclick="selectLog(\'' + l.id + '\')">'
+          + '<div class="lcard-top">'
+          +   '<div class="lcard-name">' + escHtml(l.project_name) + '</div>'
+          +   '<div>'
+          +     '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:3px">'
+          +       '<span class="sbadge ' + st + '">' + l.status + '</span>'
+          +     '</div>'
+          +     '<div class="lcard-date">' + dt.date + '</div>'
+          +     '<div class="lcard-time">' + dt.time + '</div>'
+          +   '</div>'
+          + '</div>'
+          + '<div class="lcard-meta">'
+          +   '<span class="pill blue">' + escHtml(l.environment) + '</span>'
+          +   '<span class="pill">' + escHtml(l.complexity) + '</span>'
+          +   '<span class="pill">' + l.total_scans + ' scans</span>'
+          +   '<span class="pill">' + l.batteries_used + ' batt</span>'
+          +   dom + fed
+          + '</div>'
+          + '</div>'
+        );
+      }).join('');
+    }
+    html += '</div>'; // close sc-section
+  });
+  list.innerHTML = html;
 }
 
 function selectLog(id) {

@@ -12,5 +12,6 @@ const AppState = {
   plannerQT:    { s: 0, m: 0, d: 100, dp: 0 },
   floorsMode:   'single',
   mDelay:       'None',
-  calcMode:     'setups'
+  calcMode:     'setups',
+  selScanner:   'BLK360'
 };

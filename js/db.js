@@ -2,6 +2,15 @@
 
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+// Map raw DB scanner strings → canonical AppState keys
+function normScanner(s) {
+  if (!s)                          return 'BLK360';
+  if (s.indexOf('BLK') !== -1)     return 'BLK360';
+  if (s.indexOf('RTC') !== -1)     return 'RTC360';
+  if (s.indexOf('VLX') !== -1 || s.indexOf('NavVis') !== -1) return 'VLX';
+  return s;
+}
+
 async function loadApprovedLogs() {
   var { data } = await sb
     .from('scan_logs')
@@ -13,6 +22,7 @@ async function loadApprovedLogs() {
   if (data) {
     data.forEach(r => {
       AppState.DB.push({
+        scanner:        normScanner(r.scanner),
         sq_ft:          r.sq_ft || 0,
         env_type:       r.environment.split(',').map(function(e) { return e.trim(); }),
         complexity:     r.complexity,
@@ -26,7 +36,8 @@ async function loadApprovedLogs() {
     });
   }
 
-  document.getElementById('db-total').textContent = AppState.DB.length;
+  var scannerLogs = AppState.DB.filter(function(p) { return p.scanner === AppState.selScanner; });
+  document.getElementById('db-total').textContent = scannerLogs.length;
   updConf();
 }
 

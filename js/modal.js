@@ -127,7 +127,7 @@ function openEditModal(id) {
   AppState.editingLogId = id;
   document.getElementById('modal-title-text').textContent = 'Edit log';
   document.getElementById('m-name').value                 = l.project_name || '';
-  document.getElementById('m-scanner').value              = l.scanner       || 'BLK360 G2';
+  document.getElementById('m-scanner').value              = normScanner(l.scanner);
   setModalEnvs(l.environment || 'Airport');
   document.getElementById('m-comp').value                 = l.complexity    || 'Open';
   document.getElementById('m-arrival').value              = l.arrival_time  || '12:00';

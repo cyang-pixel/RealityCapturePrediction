@@ -13,6 +13,9 @@
   });
 })();
 
+// Render quality sliders for the default scanner (BLK360).
+renderQTSliders('BLK360');
+
 // Seed the planner confidence display from the database.
 loadApprovedLogs();
 renderSaved();

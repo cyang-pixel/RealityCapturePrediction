@@ -9,10 +9,12 @@ function showPage(id, btn) {
 }
 
 function selHW(el) {
+  var hw = el.dataset.hw;
   document.querySelectorAll('.scb').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 
-  var s = SCANNERS[el.dataset.hw];
+  AppState.selScanner = hw;
+  var s = SCANNERS[hw];
   document.getElementById('sc-name').textContent  = s.name;
   document.getElementById('sc-sub').textContent   = s.sub;
   document.getElementById('sc-img').src           = s.img;
@@ -21,20 +23,31 @@ function selHW(el) {
     ? '<div class="dot dg"></div><span class="sg">Available</span>'
     : '<div class="dot dof"></div><span class="sof">Coming soon</span>';
 
-  var banner = document.getElementById('cs-banner');
-  var pa     = document.getElementById('params-area');
-  var gb     = document.getElementById('gen-btn');
+  var csBanner   = document.getElementById('cs-banner');
+  var betaBanner = document.getElementById('beta-banner');
+  var pa         = document.getElementById('params-area');
+  var gb         = document.getElementById('gen-btn');
+
   if (!s.available) {
-    banner.classList.add('show');
+    csBanner.classList.add('show');
+    betaBanner.classList.remove('show');
     pa.style.opacity       = '.4';
     pa.style.pointerEvents = 'none';
     if (gb) gb.disabled    = true;
   } else {
-    banner.classList.remove('show');
+    csBanner.classList.remove('show');
+    betaBanner.classList.toggle('show', !!s.beta);
     pa.style.opacity       = '1';
     pa.style.pointerEvents = '';
     if (gb) gb.disabled    = false;
+    renderQTSliders(hw);
   }
+
+  // Refresh DB total, match counts, and saved missions for the newly selected scanner
+  var scannerLogs = AppState.DB.filter(function(p) { return p.scanner === hw; });
+  document.getElementById('db-total').textContent = scannerLogs.length;
+  updConf();
+  renderSaved();
 
   // Always jump to planner when a scanner is clicked.
   showPage('planner', document.getElementById('nav-planner'));
