@@ -171,6 +171,39 @@ select.fi {
 .time-ampm-btn      { padding: 10px 11px !important; min-width: 46px; font-size: 12px !important; }
 #complexity-grp .btn { padding: 10px 14px !important; }
 
+/* Target finish time — prominent card */
+#finish-time-group {
+  background: #F8F8F8;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 0;
+}
+#finish-time-group .flbl {
+  font-size: 12px;
+  color: #555;
+  letter-spacing: .4px;
+  margin-bottom: 6px;
+}
+#finish-time-group .time-picker {
+  gap: 8px;
+}
+#finish-time-group .time-sel {
+  padding: 13px 16px;
+  font-size: 17px;
+  font-weight: 700;
+}
+#finish-time-group .time-sep {
+  font-size: 22px;
+  color: #777;
+}
+#finish-time-group .time-ampm-btn {
+  padding: 13px 16px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  min-width: 56px;
+}
+
 .flrr       { display: none; margin-top: 8px; }
 .flrr.show  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .env-note   { font-size: 11px; color: #aaa; margin-top: 6px; }
@@ -358,7 +391,7 @@ select.fi {
 .qt-slider-row      { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .qt-slider-label    { font-size: 12px; font-weight: 600; color: #555; width: 105px; flex-shrink: 0; white-space: nowrap; }
 .qt-slider {
-  flex: 1; -webkit-appearance: none; height: 5px; border-radius: 3px;
+  flex: 1; -webkit-appearance: none; appearance: none; height: 5px; border-radius: 3px;
   background: #E8E8E8; outline: none; cursor: pointer; transition: background .15s;
 }
 .qt-slider::-webkit-slider-thumb {

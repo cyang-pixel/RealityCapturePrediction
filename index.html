@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=13">
+  <link rel="stylesheet" href="css/styles.css?v=15">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -237,31 +237,30 @@
               <div class="env-note" id="env-note">1 type selected</div>
             </div>
 
-            <div class="frow">
-              <div class="fg">
-                <label class="flbl">Target finish time</label>
-                <div class="time-picker">
-                  <select class="fi time-sel" id="finish-hr"></select>
-                  <span class="time-sep">:</span>
-                  <select class="fi time-sel" id="finish-min">
-                    <option value="0">00</option>
-                    <option value="15">15</option>
-                    <option value="30">30</option>
-                    <option value="45">45</option>
-                  </select>
-                  <div class="time-ampm">
-                    <button class="btn time-ampm-btn" id="ampm-am" onclick="setAmPm('AM',this)">AM</button>
-                    <button class="btn time-ampm-btn active" id="ampm-pm" onclick="setAmPm('PM',this)">PM</button>
-                  </div>
+            <div class="fg" id="finish-time-group">
+              <label class="flbl">Target finish time</label>
+              <div class="time-picker">
+                <select class="fi time-sel" id="finish-hr"></select>
+                <span class="time-sep">:</span>
+                <select class="fi time-sel" id="finish-min">
+                  <option value="0">00</option>
+                  <option value="15">15</option>
+                  <option value="30">30</option>
+                  <option value="45">45</option>
+                </select>
+                <div class="time-ampm">
+                  <button class="btn time-ampm-btn" id="ampm-am" onclick="setAmPm('AM',this)">AM</button>
+                  <button class="btn time-ampm-btn active" id="ampm-pm" onclick="setAmPm('PM',this)">PM</button>
                 </div>
               </div>
-              <div class="fg">
-                <label class="flbl">Spatial complexity</label>
-                <div class="sw" id="complexity-grp">
-                  <button class="btn grow active" data-comp="Open"     onclick="setOpt('complexity','Open',this);updConf()">Open<span class="btn-cnt"></span></button>
-                  <button class="btn grow"        data-comp="Moderate" onclick="setOpt('complexity','Moderate',this);updConf()">Moderate<span class="btn-cnt"></span></button>
-                  <button class="btn grow"        data-comp="Complex"  onclick="setOpt('complexity','Complex',this);updConf()">Complex<span class="btn-cnt"></span></button>
-                </div>
+            </div>
+
+            <div class="fg" style="margin-top:14px;margin-bottom:10px">
+              <label class="flbl">Spatial complexity</label>
+              <div class="sw" id="complexity-grp">
+                <button class="btn grow active" data-comp="Open"     onclick="setOpt('complexity','Open',this);updConf()">Open<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="Moderate" onclick="setOpt('complexity','Moderate',this);updConf()">Moderate<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="Complex"  onclick="setOpt('complexity','Complex',this);updConf()">Complex<span class="btn-cnt"></span></button>
               </div>
             </div>
 
