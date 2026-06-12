@@ -109,6 +109,8 @@ function selectLog(id) {
     + '</div></div>'
 
     + '<div class="det-sec"><div class="det-slbl">Site &amp; timing</div><div class="det-rows">'
+    +   '<div class="det-row"><span class="det-k">Scan date</span><span class="det-v">'  + (l.scan_date     || '&#x2014;') + '</span></div>'
+    +   '<div class="det-row"><span class="det-k">Submitted by</span><span class="det-v">' + escHtml(l.submitted_by || '—') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Environment</span><span class="det-v">' + escHtml(l.environment) + ' &middot; ' + escHtml(l.complexity) + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Arrival</span><span class="det-v">'    + (l.arrival_time  || '&#x2014;') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Scan start</span><span class="det-v">' + (l.scan_start    || '&#x2014;') + '</span></div>'
@@ -147,6 +149,7 @@ function selectLog(id) {
     + (canFeed
       ? '<button class="feed-btn" onclick="feedToModel(\'' + l.id + '\')">&#x2192; Feed to calculation model</button>'
       : '')
+    + '<button class="dup-btn" onclick="duplicateLog(\'' + l.id + '\')">&#x2398; Duplicate this log</button>'
     + '<button class="edit-btn" onclick="openEditModal(\'' + l.id + '\')">&#x270E; Edit this log</button>'
     + '<button class="del-btn" onclick="deleteLog(\'' + l.id + '\')">&#x1F5D1; Delete this log</button>'
     + '</div>';

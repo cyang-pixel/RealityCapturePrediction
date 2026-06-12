@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=15">
+  <link rel="stylesheet" href="css/styles.css?v=17">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -33,6 +33,12 @@
         </select>
       </div>
     </div>
+    <div class="mgrid" style="margin-bottom:8px">
+      <div class="fg">
+        <label class="flbl">Submitted by <span style="color:#E05555">*</span></label>
+        <input type="text" class="fi" id="m-submitter" placeholder="Your full name">
+      </div>
+    </div>
     <div class="fg" style="margin-bottom:8px">
       <label class="flbl">Environment <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">— select all that apply</span></label>
       <div class="sw" id="m-env-grp" style="margin-top:5px">
@@ -54,6 +60,12 @@
     </div>
 
     <div class="modal-sec">Timing</div>
+    <div class="mgrid" style="margin-bottom:10px">
+      <div class="fg">
+        <label class="flbl">Date scan was performed</label>
+        <input type="date" class="fi" id="m-scan-date">
+      </div>
+    </div>
     <div class="mgrid3">
       <div class="fg"><label class="flbl">Arrival time</label><input type="time" class="fi" id="m-arrival" value="12:00"></div>
       <div class="fg"><label class="flbl">Scan start</label><input type="time" class="fi" id="m-start" value="12:30"></div>
@@ -393,8 +405,8 @@
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=8"></script>
 <script src="js/planner.js?v=15"></script>
-<script src="js/logs.js?v=8"></script>
-<script src="js/modal.js?v=5"></script>
+<script src="js/logs.js?v=9"></script>
+<script src="js/modal.js?v=6"></script>
 <script src="js/ui.js?v=10"></script>
 <script src="js/main.js?v=7"></script>
 

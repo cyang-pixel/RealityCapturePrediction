@@ -100,6 +100,8 @@ function openNewModal() {
   AppState.editingLogId = null;
   document.getElementById('modal-title-text').textContent    = 'New post-scan feedback log';
   document.getElementById('m-name').value                    = '';
+  document.getElementById('m-submitter').value               = '';
+  document.getElementById('m-scan-date').value               = new Date().toISOString().split('T')[0];
   document.getElementById('m-scanner').selectedIndex        = 0;
   setModalEnvs('Airport');
   document.getElementById('m-comp').selectedIndex           = 0;
@@ -127,6 +129,8 @@ function openEditModal(id) {
   AppState.editingLogId = id;
   document.getElementById('modal-title-text').textContent = 'Edit log';
   document.getElementById('m-name').value                 = l.project_name || '';
+  document.getElementById('m-submitter').value            = l.submitted_by  || '';
+  document.getElementById('m-scan-date').value            = l.scan_date     || '';
   document.getElementById('m-scanner').value              = normScanner(l.scanner);
   setModalEnvs(l.environment || 'Airport');
   document.getElementById('m-comp').value                 = l.complexity    || 'Open';
@@ -162,9 +166,42 @@ function setMDelay(v, btn) {
 
 // ── Submit ────────────────────────────────────────────────────────────────────
 
+function duplicateLog(id) {
+  var l = AppState.allLogs.find(p => p.id === id);
+  if (!l) return;
+
+  AppState.editingLogId = null;
+  document.getElementById('modal-title-text').textContent = 'Duplicate log';
+  document.getElementById('m-name').value                 = l.project_name || '';
+  document.getElementById('m-submitter').value            = '';
+  document.getElementById('m-scan-date').value            = '';
+  document.getElementById('m-scanner').value              = normScanner(l.scanner);
+  setModalEnvs(l.environment || 'Airport');
+  document.getElementById('m-comp').value                 = l.complexity      || 'Open';
+  document.getElementById('m-arrival').value              = l.arrival_time    || '12:00';
+  document.getElementById('m-start').value                = l.scan_start      || '12:30';
+  document.getElementById('m-end').value                  = l.departure_time  || '16:00';
+  document.getElementById('m-scans').value                = l.total_scans     || 0;
+  document.getElementById('m-batt').value                 = l.batteries_used  || 0;
+  document.getElementById('m-data').value                 = l.data_gb         || 0;
+  document.getElementById('m-sqft').value                 = l.sq_ft ? parseInt(l.sq_ft).toLocaleString('en-US') : '';
+  document.getElementById('m-notes').value                = l.notes           || '';
+  AppState.mDelay = l.delay_level || 'None';
+  document.getElementById('m-delay-grp').querySelectorAll('.dbtn').forEach(b =>
+    b.classList.toggle('active', b.textContent === AppState.mDelay)
+  );
+  resetQT(l.quality_standard || 0, l.quality_medium || 0, l.quality_dense || 0, l.quality_denseplus || 0);
+  document.getElementById('modal-submit-btn').textContent = 'Submit for review';
+  document.getElementById('modal-submit-btn').disabled    = false;
+  document.getElementById('modal-msg').className          = 'modal-msg';
+  document.getElementById('modal-ov').classList.add('show');
+}
+
 async function submitLog() {
-  var name = document.getElementById('m-name').value.trim();
-  if (!name) { showMsg('err', 'Please enter a project name.'); return; }
+  var name      = document.getElementById('m-name').value.trim();
+  var submitter = document.getElementById('m-submitter').value.trim();
+  if (!name)      { showMsg('err', 'Please enter a project name.'); return; }
+  if (!submitter) { showMsg('err', 'Please enter your name in "Submitted by" — this field is required.'); return; }
 
   var qs  = parseInt(document.getElementById('qs-s').value)  || 0;
   var qm  = parseInt(document.getElementById('qs-m').value)  || 0;
@@ -186,6 +223,8 @@ async function submitLog() {
 
   var payload = {
     project_name:    name,
+    submitted_by:    submitter,
+    scan_date:       document.getElementById('m-scan-date').value || null,
     scanner:         document.getElementById('m-scanner').value,
     environment:     envValue,
     complexity:      document.getElementById('m-comp').value,

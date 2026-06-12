@@ -360,6 +360,8 @@ select.fi {
 .appr-r:hover { background: #A32D2D; color: #fff; }
 .feed-btn     { width: 100%; padding: 12px; background: #111; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: none; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
 .feed-btn:hover { background: #222; transform: translateY(-2px); box-shadow: 0 0 0 1.5px rgba(255,255,255,.2), 0 8px 24px rgba(0,0,0,.35); }
+.dup-btn      { width: 100%; padding: 12px; background: #fff; color: #111; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #E0E0E0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
+.dup-btn:hover  { border-color: #111; background: #F8F8F8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .edit-btn     { width: 100%; padding: 12px; background: #fff; color: #111; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #E0E0E0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
 .edit-btn:hover { border-color: #111; background: #F8F8F8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .del-btn        { width: 100%; padding: 12px; background: #fff; color: #A32D2D; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #FFCACA; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
