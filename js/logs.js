@@ -1,5 +1,11 @@
 // Post-scan feedback logs — list rendering, detail panel, and admin actions.
 
+function fmtDate(str) {
+  if (!str) return '';
+  var d = new Date(str + 'T12:00:00'); // noon to avoid UTC shift
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 function filterLogs(f, btn) {
   AppState.logFilter = f;
   document.getElementById('filter-tabs').querySelectorAll('.lft').forEach(b => b.classList.remove('active'));
@@ -35,10 +41,15 @@ function renderLogList() {
         var st  = l.status === 'approved' ? 'sa' : l.status === 'rejected' ? 'sr' : 'sp';
         var sel = AppState.selLogId === l.id ? ' sel' : '';
         var dt  = fmtDateTime(l.created_at);
-        var dom = l.delay_level && l.delay_level !== 'None'
-          ? '<span class="pill amber">' + l.delay_level + ' delay</span>'
-          : '';
-        var fed = l.fed_to_model ? '<span class="pill green">In model</span>' : '';
+        var dom      = l.delay_level && l.delay_level !== 'None'
+          ? '<span class="pill amber">' + l.delay_level + ' delay</span>' : '';
+        var fed      = l.fed_to_model ? '<span class="pill green">In model</span>' : '';
+        var notFed   = (l.status === 'approved' && !l.fed_to_model)
+          ? '<span class="pill not-fed">Not in model</span>' : '';
+        var scanDate = l.scan_date
+          ? '<span class="pill">' + fmtDate(l.scan_date) + '</span>' : '';
+        var who      = l.submitted_by
+          ? '<span class="pill purple">' + escHtml(l.submitted_by) + '</span>' : '';
         return (
           '<div class="lcard' + sel + '" onclick="selectLog(\'' + l.id + '\')">'
           + '<div class="lcard-top">'
@@ -56,8 +67,11 @@ function renderLogList() {
           +   '<span class="pill">' + escHtml(l.complexity) + '</span>'
           +   '<span class="pill">' + l.total_scans + ' scans</span>'
           +   '<span class="pill">' + l.batteries_used + ' batt</span>'
-          +   dom + fed
+          +   dom + fed + notFed
           + '</div>'
+          + (scanDate || who
+            ? '<div class="lcard-meta lcard-meta--sub">' + scanDate + who + '</div>'
+            : '')
           + '</div>'
         );
       }).join('');

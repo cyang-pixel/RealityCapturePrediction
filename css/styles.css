@@ -154,7 +154,8 @@ body, html {
 
 .frow  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 .fg    { display: flex; flex-direction: column; gap: 5px; }
-.flbl  { font-size: 11px; font-weight: 700; color: #aaa; letter-spacing: .5px; text-transform: uppercase; }
+.flbl       { font-size: 11px; font-weight: 700; color: #aaa; letter-spacing: .5px; text-transform: uppercase; }
+.field-hint { font-size: 11px; color: #D4851A; margin-top: 5px; line-height: 1.45; }
 .fi    { background: #fff; border: 1px solid #E0E0E0; border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #111; font-family: 'Sora', sans-serif; outline: none; transition: border .18s; -webkit-appearance: none; appearance: none; width: 100%; }
 .fi:focus { border-color: #111; box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
 select.fi {
@@ -314,7 +315,8 @@ select.fi {
 .lcard-name   { font-size: 13px; font-weight: 700; color: #111; }
 .lcard-date   { font-size: 11px; color: #bbb; text-align: right; }
 .lcard-time   { font-size: 10px; color: #ccc; margin-top: 1px; }
-.lcard-meta   { display: flex; flex-wrap: wrap; gap: 5px; }
+.lcard-meta         { display: flex; flex-wrap: wrap; gap: 5px; }
+.lcard-meta--sub    { margin-top: 4px; }
 
 /* Pills */
 .pill         { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: #F5F5F5; color: #777; }
@@ -322,6 +324,7 @@ select.fi {
 .pill.amber   { background: #FAEEDA; color: #633806; }
 .pill.blue    { background: #E6F1FB; color: #185FA5; }
 .pill.purple  { background: #EEEDFE; color: #3C3489; }
+.pill.not-fed { background: #F0F0F0; color: #999; border: 1px dashed #CCC; }
 
 /* Status badges */
 .sbadge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
