@@ -56,9 +56,9 @@
     <div class="fg" style="margin-bottom:8px">
       <label class="flbl">Inter-scan spacing</label>
       <select class="fi" id="m-comp" style="margin-top:5px">
-        <option value="10ft">10 ft — dense / complex</option>
-        <option value="15ft">15 ft — moderate</option>
-        <option value="20ft">20 ft — open</option>
+        <option value="20ft">20 ft (Open)</option>
+        <option value="15ft">15 ft (Moderate)</option>
+        <option value="10ft">10 ft (Complex)</option>
       </select>
     </div>
 
@@ -254,9 +254,9 @@
             <div class="fg" style="margin-top:14px;margin-bottom:10px">
               <label class="flbl">Inter-scan spacing <span style="font-weight:400;color:#aaa;text-transform:none;letter-spacing:0">— affects scan count &amp; coverage, not scan time</span></label>
               <div class="sw" id="complexity-grp">
-                <button class="btn grow"        data-comp="10ft" onclick="setOpt('spacing','10ft',this);updConf()">10 ft<span class="btn-cnt"></span></button>
-                <button class="btn grow"        data-comp="15ft" onclick="setOpt('spacing','15ft',this);updConf()">15 ft<span class="btn-cnt"></span></button>
-                <button class="btn grow active" data-comp="20ft" onclick="setOpt('spacing','20ft',this);updConf()">20 ft<span class="btn-cnt"></span></button>
+                <button class="btn grow active" data-comp="20ft" onclick="setOpt('spacing','20ft',this);updConf()">20 ft (Open)<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="15ft" onclick="setOpt('spacing','15ft',this);updConf()">15 ft (Moderate)<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="10ft" onclick="setOpt('spacing','10ft',this);updConf()">10 ft (Complex)<span class="btn-cnt"></span></button>
               </div>
             </div>
 
@@ -392,7 +392,7 @@
 
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
-<script src="js/config.js?v=13"></script>
+<script src="js/config.js?v=14"></script>
 <script src="js/state.js?v=10"></script>
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=13"></script>
