@@ -296,6 +296,14 @@ function calculate() {
   var fm      = getFriction();
   var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
 
+  // TPS/data/batt use all env-matching logs regardless of complexity — complexity
+  // only drives scan count (area mode), not how long each scan takes.
+  var tpsMatches = AppState.DB.filter(function(p) {
+    return p.scanner === AppState.selScanner &&
+      envMatch(AppState.selEnvs, p.env_type) &&
+      p.delay_profile !== 'Major';
+  });
+
   // Weighted quality values across all active tiers
   var qtCfg = getQTCfg();
   var pqt   = AppState.plannerQT;
@@ -305,9 +313,9 @@ function calculate() {
     if (pct > 0) {
       var qual = qtCfg.map[k];
       weightedSfMult += pct * QUALITY[qual].sfScanMult;
-      weightedTps    += pct * getAvgTpS(AppState.selEnvs, AppState.complexity, qual, matches);
-      weightedData   += pct * getAvgData(matches, qual);
-      weightedBatt   += pct * getBattLife(matches, qual);
+      weightedTps    += pct * getAvgTpS(AppState.selEnvs, AppState.complexity, qual, tpsMatches);
+      weightedData   += pct * getAvgData(tpsMatches, qual);
+      weightedBatt   += pct * getBattLife(tpsMatches, qual);
     }
   });
   // Fallback if all sliders are at 0
