@@ -42,6 +42,15 @@ function normScanner(s) {
   return s;
 }
 
+// Map old complexity labels → inter-scan spacing values
+function normSpacing(c) {
+  if (!c) return '12m';
+  if (c === 'Open')     return '12m';
+  if (c === 'Moderate') return '8m';
+  if (c === 'Complex')  return '5m';
+  return c; // already a spacing string like '15m', '12m', '8m', '5m'
+}
+
 async function loadApprovedLogs() {
   var records = await atFetchAll('AND({status}="approved",{fed_to_model}="true")');
 
@@ -51,10 +60,10 @@ async function loadApprovedLogs() {
       scanner:         normScanner(r.scanner),
       sq_ft:           r.sq_ft || 0,
       env_type:        r.environment ? r.environment.split(',').map(function(e) { return e.trim(); }) : [],
-      complexity:      r.complexity,
+      spacing:         normSpacing(r.complexity),
       quality_setting: getDomQ(r),
       actual_scans:    r.total_scans,
-      actual_hours:    calcHours(r.arrival_time, r.departure_time),
+      actual_hours:    calcHours(r.scan_start, r.departure_time),
       actual_data_gb:  r.data_gb,
       batteries:       r.batteries_used,
       delay_profile:   r.delay_level

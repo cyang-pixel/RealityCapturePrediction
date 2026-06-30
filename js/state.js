@@ -7,7 +7,7 @@ const AppState = {
   editingLogId: null,
   selEnvs:      new Set(['Airport']),
   selConds:     new Set(['none']),
-  complexity:   'Open',
+  spacing:      '12m',
   quality:      'Dense (12mm)',
   plannerQT:    { s: 0, m: 0, d: 100, dp: 0 },
   floorsMode:   'single',

@@ -97,12 +97,12 @@ const QUALITY = {
 };
 
 const BASELINE = {
-  'Office':      { Open: 620,  Moderate: 430, Complex: 285 },
-  'Airport':     { Open: 950,  Moderate: 680, Complex: 420 },
-  'Warehouse':   { Open: 1100, Moderate: 800, Complex: 550 },
-  'Retail':      { Open: 700,  Moderate: 500, Complex: 320 },
-  'Hospital':    { Open: 500,  Moderate: 350, Complex: 230 },
-  'Industrial':  { Open: 900,  Moderate: 640, Complex: 420 },
-  'Residential': { Open: 480,  Moderate: 340, Complex: 210 },
-  'Mixed Use':   { Open: 660,  Moderate: 470, Complex: 305 }
+  'Office':      { '15m': 870,  '12m': 620, '8m': 430, '5m': 285 },
+  'Airport':     { '15m': 1350, '12m': 950, '8m': 680, '5m': 420 },
+  'Warehouse':   { '15m': 1550, '12m': 1100, '8m': 800, '5m': 550 },
+  'Retail':      { '15m': 990,  '12m': 700, '8m': 500, '5m': 320 },
+  'Hospital':    { '15m': 700,  '12m': 500, '8m': 350, '5m': 230 },
+  'Industrial':  { '15m': 1260, '12m': 900, '8m': 640, '5m': 420 },
+  'Residential': { '15m': 670,  '12m': 480, '8m': 340, '5m': 210 },
+  'Mixed Use':   { '15m': 925,  '12m': 660, '8m': 470, '5m': 305 }
 };

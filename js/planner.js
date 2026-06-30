@@ -6,16 +6,16 @@ function envMatch(envSet, envType) {
   return types.some(function(t) { return envSet.has(t); });
 }
 
-function lookAlikes(envSet, comp) {
+function lookAlikes(envSet, spacing) {
   return AppState.DB.filter(p =>
     p.scanner === AppState.selScanner &&
     envMatch(envSet, p.env_type) &&
-    p.complexity === comp &&
+    p.spacing === spacing &&
     p.delay_profile !== 'Major'
   );
 }
 
-function getBaseSF(envSet, comp, matches) {
+function getBaseSF(envSet, spacing, matches) {
   if (matches.length > 0) {
     var totalSF    = matches.reduce((a, p) => a + p.sq_ft, 0);
     var totalScans = matches.reduce((a, p) => a + p.actual_scans, 0);
@@ -23,16 +23,9 @@ function getBaseSF(envSet, comp, matches) {
   }
   var keys = envSet.size > 0 ? Array.from(envSet) : Object.keys(BASELINE);
   var t = 0, c = 0;
-  keys.forEach(e => { t += (BASELINE[e] || BASELINE['Office'])[comp] || 500; c++; });
+  keys.forEach(e => { t += (BASELINE[e] || BASELINE['Office'])[spacing] || 500; c++; });
   return t / c;
 }
-
-var COMP_MULT = { Open: 1.0, Moderate: 1.35, Complex: 1.75 };
-var COMP_FALLBACK = {
-  Open:     ['Moderate', 'Complex'],
-  Moderate: ['Open',     'Complex'],
-  Complex:  ['Moderate', 'Open']
-};
 
 // Time-per-scan multipliers relative to Airport (open, fast movement = 1.0).
 // Reflects setup/movement overhead per environment type, not scan acquisition time.
@@ -57,64 +50,38 @@ function getEnvMult(envSet) {
   return keys.length > 0 ? total / keys.length : 1.0;
 }
 
-function getAvgTpS(envSet, comp, qual, matches) {
-  var qm = matches.filter(p => p.quality_setting === qual);
-  if (qm.length > 0) {
-    return qm.reduce((a, p) => a + (p.actual_hours * 3600 / p.actual_scans), 0) / qm.length;
+// Minimum look-alike records before trusting historic TPS over spec
+var TPS_MIN_LOGS = 5;
+
+function getAvgTpS(envSet, spacing, qual, matches) {
+  // Primary: env-matching logs with enough data points (spacing doesn't affect TPS)
+  var qm = matches.filter(function(p) { return p.quality_setting === qual; });
+  if (qm.length >= TPS_MIN_LOGS) {
+    return qm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / qm.length;
   }
 
   var targetEnv = getEnvMult(envSet);
-  var adjComps  = COMP_FALLBACK[comp] || [];
 
-  // 1. Same env(s), adjacent complexity — complexity doesn't change TPS, use directly
-  for (var ci = 0; ci < adjComps.length; ci++) {
-    var ac = adjComps[ci];
-    var acm = AppState.DB.filter(function(p) {
-      return envMatch(envSet, p.env_type) && p.complexity === ac && p.delay_profile !== 'Major' && p.quality_setting === qual;
-    });
-    if (acm.length > 0) {
-      var tps1 = acm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / acm.length;
-      return tps1;
-    }
-  }
-
-  // Adjacent environments sorted by how close their multiplier is to the target
+  // Adjacent environments sorted by TPS multiplier proximity — scale by env only
   var adjEnvs = Object.keys(ENV_TPS_MULT)
     .filter(function(e) { return !envSet.has(e); })
     .sort(function(a, b) {
       return Math.abs(ENV_TPS_MULT[a] - targetEnv) - Math.abs(ENV_TPS_MULT[b] - targetEnv);
     });
 
-  // 2. Adjacent env, same complexity — scale only by environment movement difference
   for (var ei = 0; ei < adjEnvs.length; ei++) {
     var ae = adjEnvs[ei];
     var aem = AppState.DB.filter(function(p) {
       var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
-      return t.indexOf(ae) !== -1 && p.complexity === comp && p.delay_profile !== 'Major' && p.quality_setting === qual;
+      return t.indexOf(ae) !== -1 && p.delay_profile !== 'Major' && p.quality_setting === qual;
     });
     if (aem.length > 0) {
-      var tps2 = aem.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / aem.length;
-      return tps2 * (targetEnv / (ENV_TPS_MULT[ae] || 1.0));
+      var tps = aem.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / aem.length;
+      return tps * (targetEnv / (ENV_TPS_MULT[ae] || 1.0));
     }
   }
 
-  // 3. Adjacent env + adjacent complexity — scale by env only, not complexity
-  for (var ei2 = 0; ei2 < adjEnvs.length; ei2++) {
-    var ae2 = adjEnvs[ei2];
-    for (var ci2 = 0; ci2 < adjComps.length; ci2++) {
-      var ac2 = adjComps[ci2];
-      var both = AppState.DB.filter(function(p) {
-        var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
-        return t.indexOf(ae2) !== -1 && p.complexity === ac2 && p.delay_profile !== 'Major' && p.quality_setting === qual;
-      });
-      if (both.length > 0) {
-        var tps3 = both.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / both.length;
-        return tps3 * (targetEnv / (ENV_TPS_MULT[ae2] || 1.0));
-      }
-    }
-  }
-
-  // 4. No data — spec fallback: quality tier scan time × environment movement overhead only
+  // Spec fallback: quality tier scan time × environment movement overhead
   return QUALITY[qual].tps * targetEnv;
 }
 
@@ -150,7 +117,7 @@ function getConf(n) {
 }
 
 function updConf() {
-  var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
+  var matches = lookAlikes(AppState.selEnvs, AppState.spacing);
   var conf    = getConf(matches.length);
 
   document.getElementById('db-matches').textContent = matches.length;
@@ -172,10 +139,10 @@ function updConf() {
     if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
   });
 
-  // Complexity button counts — logs for this scanner + current env(s) + that complexity
+  // Spacing button counts — logs for this scanner + current env(s) + that spacing
   document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(btn) {
     var n = AppState.DB.filter(function(p) {
-      return p.scanner === AppState.selScanner && envMatch(AppState.selEnvs, p.env_type) && p.complexity === btn.dataset.comp && p.delay_profile !== 'Major';
+      return p.scanner === AppState.selScanner && envMatch(AppState.selEnvs, p.env_type) && p.spacing === btn.dataset.comp && p.delay_profile !== 'Major';
     }).length;
     var s = btn.querySelector('.btn-cnt');
     if (s) s.textContent = n > 0 ? ' (' + n + ')' : '';
@@ -294,9 +261,9 @@ function calculate() {
     ? parseInt(document.getElementById('floor-count').value) || 2
     : 1;
   var fm      = getFriction();
-  var matches = lookAlikes(AppState.selEnvs, AppState.complexity);
+  var matches = lookAlikes(AppState.selEnvs, AppState.spacing);
 
-  // TPS/data/batt use all env-matching logs regardless of complexity — complexity
+  // TPS/data/batt use all env-matching logs regardless of spacing — spacing
   // only drives scan count (area mode), not how long each scan takes.
   var tpsMatches = AppState.DB.filter(function(p) {
     return p.scanner === AppState.selScanner &&
@@ -313,7 +280,7 @@ function calculate() {
     if (pct > 0) {
       var qual = qtCfg.map[k];
       weightedSfMult += pct * QUALITY[qual].sfScanMult;
-      weightedTps    += pct * getAvgTpS(AppState.selEnvs, AppState.complexity, qual, tpsMatches);
+      weightedTps    += pct * getAvgTpS(AppState.selEnvs, AppState.spacing, qual, tpsMatches);
       weightedData   += pct * getAvgData(tpsMatches, qual);
       weightedBatt   += pct * getBattLife(tpsMatches, qual);
     }
@@ -323,19 +290,24 @@ function calculate() {
 
   var Ps;
   if (AppState.calcMode === 'area') {
-    Ps = Math.ceil((getRaw('calc-value') / getBaseSF(AppState.selEnvs, AppState.complexity, matches)) * weightedSfMult);
+    Ps = Math.ceil((getRaw('calc-value') / getBaseSF(AppState.selEnvs, AppState.spacing, matches)) * weightedSfMult);
   } else {
     Ps = Math.max(1, Math.round(getRaw('calc-value')));
   }
   Ps = Math.max(1, Ps);
 
-  var Vf     = AppState.floorsMode === 'single' ? 1.0 : 1.0 + (0.07 * (floorCount - 1));
-  var D_adj  = (Ps * weightedTps / 60) * Vf * fm;
-  var D_min  = D_adj * 0.875;
-  var D_max  = D_adj * 1.125;
-
+  var Vf          = AppState.floorsMode === 'single' ? 1.0 : 1.0 + (0.07 * (floorCount - 1));
   var battTotal   = qtCfg.battTotal   || TOTAL_BATT;
   var battPerUnit = qtCfg.battPerUnit || 1;
+
+  // Base scan duration, then add battery swap overhead (+8 min per swap after the first pack)
+  var D_raw       = (Ps * weightedTps / 60) * Vf * fm;
+  var battCycles  = Math.ceil((D_raw / 60) / weightedBatt);
+  var swapMins    = Math.max(0, battCycles - 1) * 8;
+  var D_adj       = D_raw + swapMins;
+  var D_min       = D_adj * 0.875;
+  var D_max       = D_adj * 1.125;
+
   var battMin     = Math.ceil((D_adj / 60) / weightedBatt) * battPerUnit;
   var battRec     = battMin + battPerUnit;
   var totalData   = Ps * weightedData;
@@ -424,7 +396,7 @@ function saveMission() {
       calcMode:   AppState.calcMode,
       calcValue:  document.getElementById('calc-value').value,
       envs:       Array.from(AppState.selEnvs),
-      complexity: AppState.complexity,
+      spacing: AppState.spacing,
       qt:         { s: AppState.plannerQT.s, m: AppState.plannerQT.m, d: AppState.plannerQT.d, dp: AppState.plannerQT.dp },
       floorsMode: AppState.floorsMode,
       floorCount: document.getElementById('floor-count').value,
@@ -461,10 +433,10 @@ function loadMission(id) {
     ? 'General prediction — all environments blended'
     : n + ' type' + (n > 1 ? 's' : '') + ' selected' + (n > 1 ? ' — baselines blended' : '');
 
-  // Complexity
-  AppState.complexity = p.complexity;
+  // Spacing (backward-compat: old saves stored complexity key with Open/Moderate/Complex values)
+  AppState.spacing = p.spacing || (p.complexity === 'Open' ? '12m' : p.complexity === 'Moderate' ? '8m' : p.complexity === 'Complex' ? '5m' : '12m');
   document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(b) {
-    b.classList.toggle('active', b.dataset.comp === p.complexity);
+    b.classList.toggle('active', b.dataset.comp === AppState.spacing);
   });
 
   // Quality tiers — re-render sliders for the saved scanner first

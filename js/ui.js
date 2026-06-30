@@ -106,7 +106,7 @@ function setCalcMode(mode, btn) {
 }
 
 function setOpt(key, val, btn) {
-  if (key === 'complexity') AppState.complexity = val;
+  if (key === 'spacing') AppState.spacing = val;
   btn.parentElement.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }

@@ -156,7 +156,7 @@ function openNewModal() {
   document.getElementById('m-scanner').selectedIndex     = 0;
   renderModalQTSliders('BLK360');
   setModalEnvs('Airport');
-  document.getElementById('m-comp').selectedIndex        = 0;
+  document.getElementById('m-comp').value                = '12m';
   document.getElementById('m-arrival').value             = '12:00';
   document.getElementById('m-start').value               = '12:30';
   document.getElementById('m-end').value                 = '16:00';
@@ -186,7 +186,7 @@ function openEditModal(id) {
   document.getElementById('m-scanner').value              = sc;
   renderModalQTSliders(sc, qtValsFromDB(sc, l));
   setModalEnvs(l.environment || 'Airport');
-  document.getElementById('m-comp').value                 = l.complexity     || 'Open';
+  document.getElementById('m-comp').value                 = normSpacing(l.complexity) || '12m';
   document.getElementById('m-arrival').value              = l.arrival_time   || '12:00';
   document.getElementById('m-start').value                = l.scan_start     || '12:30';
   document.getElementById('m-end').value                  = l.departure_time || '16:00';
@@ -218,7 +218,7 @@ function duplicateLog(id) {
   document.getElementById('m-scanner').value              = sc;
   renderModalQTSliders(sc, qtValsFromDB(sc, l));
   setModalEnvs(l.environment || 'Airport');
-  document.getElementById('m-comp').value                 = l.complexity     || 'Open';
+  document.getElementById('m-comp').value                 = normSpacing(l.complexity) || '12m';
   document.getElementById('m-arrival').value              = l.arrival_time   || '12:00';
   document.getElementById('m-start').value                = l.scan_start     || '12:30';
   document.getElementById('m-end').value                  = l.departure_time || '16:00';

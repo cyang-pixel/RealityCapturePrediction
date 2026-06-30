@@ -74,7 +74,7 @@ function renderLogList() {
           + '</div>'
           + '<div class="lcard-meta">'
           +   '<span class="pill blue">' + escHtml(l.environment) + '</span>'
-          +   '<span class="pill">' + escHtml(l.complexity) + '</span>'
+          +   '<span class="pill">' + escHtml(normSpacing(l.complexity) || '') + '</span>'
           +   '<span class="pill">' + l.total_scans + ' scans</span>'
           +   '<span class="pill">' + l.batteries_used + ' batt</span>'
           +   dom + fed + notFed
@@ -135,7 +135,8 @@ function selectLog(id) {
     + '<div class="det-sec"><div class="det-slbl">Site &amp; timing</div><div class="det-rows">'
     +   '<div class="det-row"><span class="det-k">Scan date</span><span class="det-v">'  + (l.scan_date     || '&#x2014;') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Submitted by</span><span class="det-v">' + escHtml(l.submitted_by || '—') + '</span></div>'
-    +   '<div class="det-row"><span class="det-k">Environment</span><span class="det-v">' + escHtml(l.environment) + ' &middot; ' + escHtml(l.complexity) + '</span></div>'
+    +   '<div class="det-row"><span class="det-k">Environment</span><span class="det-v">' + escHtml(l.environment) + '</span></div>'
+    +   '<div class="det-row"><span class="det-k">Spacing</span><span class="det-v">' + escHtml(normSpacing(l.complexity) || '—') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Arrival</span><span class="det-v">'    + (l.arrival_time  || '&#x2014;') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Scan start</span><span class="det-v">' + (l.scan_start    || '&#x2014;') + '</span></div>'
     +   '<div class="det-row"><span class="det-k">Departure</span><span class="det-v">'  + (l.departure_time || '&#x2014;') + '</span></div>'
