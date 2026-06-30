@@ -201,7 +201,7 @@ async function rejectLog(id) {
 async function feedToModel(id) {
   await fetch(AT_URL + '/' + id, {
     method: 'PATCH', headers: atHeaders(),
-    body: JSON.stringify({ fields: { fed_to_model: true } })
+    body: JSON.stringify({ fields: { fed_to_model: 'true' } })
   });
   await loadLogs();
   await loadApprovedLogs();

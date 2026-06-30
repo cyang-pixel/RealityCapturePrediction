@@ -9,7 +9,7 @@ function atHeaders() {
 function atRecord(r) {
   var f = r.fields || {};
   return Object.assign({ id: r.id, created_at: r.createdTime }, f, {
-    fed_to_model:   f.fed_to_model   || false,
+    fed_to_model:   f.fed_to_model === true || f.fed_to_model === 'true',
     total_scans:    f.total_scans    || 0,
     batteries_used: f.batteries_used || 0,
     data_gb:        f.data_gb        || 0
@@ -43,7 +43,7 @@ function normScanner(s) {
 }
 
 async function loadApprovedLogs() {
-  var records = await atFetchAll('AND({status}="approved",{fed_to_model}=TRUE())');
+  var records = await atFetchAll('AND({status}="approved",{fed_to_model}="true")');
 
   AppState.DB = [];
   records.forEach(function(r) {
