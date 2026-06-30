@@ -7,7 +7,7 @@ const AppState = {
   editingLogId: null,
   selEnvs:      new Set(['Airport']),
   selConds:     new Set(['none']),
-  spacing:      '40ft',
+  spacing:      '20ft',
   quality:      'Dense (12mm)',
   plannerQT:    { s: 0, m: 0, d: 100, dp: 0 },
   floorsMode:   'single',

@@ -156,7 +156,7 @@ function openNewModal() {
   document.getElementById('m-scanner').selectedIndex     = 0;
   renderModalQTSliders('BLK360');
   setModalEnvs('Airport');
-  document.getElementById('m-comp').value                = '40ft';
+  document.getElementById('m-comp').value                = '20ft';
   document.getElementById('m-arrival').value             = '12:00';
   document.getElementById('m-start').value               = '12:30';
   document.getElementById('m-end').value                 = '16:00';
