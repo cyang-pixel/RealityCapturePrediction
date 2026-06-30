@@ -63,11 +63,10 @@ function getAvgTpS(envSet, comp, qual, matches) {
     return qm.reduce((a, p) => a + (p.actual_hours * 3600 / p.actual_scans), 0) / qm.length;
   }
 
-  var targetComp = COMP_MULT[comp] || 1.0;
-  var targetEnv  = getEnvMult(envSet);
-  var adjComps   = COMP_FALLBACK[comp] || [];
+  var targetEnv = getEnvMult(envSet);
+  var adjComps  = COMP_FALLBACK[comp] || [];
 
-  // 1. Same env(s), adjacent complexity
+  // 1. Same env(s), adjacent complexity — complexity doesn't change TPS, use directly
   for (var ci = 0; ci < adjComps.length; ci++) {
     var ac = adjComps[ci];
     var acm = AppState.DB.filter(function(p) {
@@ -75,7 +74,7 @@ function getAvgTpS(envSet, comp, qual, matches) {
     });
     if (acm.length > 0) {
       var tps1 = acm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / acm.length;
-      return tps1 * (targetComp / (COMP_MULT[ac] || 1.0));
+      return tps1;
     }
   }
 
@@ -86,7 +85,7 @@ function getAvgTpS(envSet, comp, qual, matches) {
       return Math.abs(ENV_TPS_MULT[a] - targetEnv) - Math.abs(ENV_TPS_MULT[b] - targetEnv);
     });
 
-  // 2. Adjacent env, same complexity
+  // 2. Adjacent env, same complexity — scale only by environment movement difference
   for (var ei = 0; ei < adjEnvs.length; ei++) {
     var ae = adjEnvs[ei];
     var aem = AppState.DB.filter(function(p) {
@@ -99,7 +98,7 @@ function getAvgTpS(envSet, comp, qual, matches) {
     }
   }
 
-  // 3. Adjacent env + adjacent complexity
+  // 3. Adjacent env + adjacent complexity — scale by env only, not complexity
   for (var ei2 = 0; ei2 < adjEnvs.length; ei2++) {
     var ae2 = adjEnvs[ei2];
     for (var ci2 = 0; ci2 < adjComps.length; ci2++) {
@@ -110,13 +109,13 @@ function getAvgTpS(envSet, comp, qual, matches) {
       });
       if (both.length > 0) {
         var tps3 = both.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / both.length;
-        return tps3 * (targetComp / (COMP_MULT[ac2] || 1.0)) * (targetEnv / (ENV_TPS_MULT[ae2] || 1.0));
+        return tps3 * (targetEnv / (ENV_TPS_MULT[ae2] || 1.0));
       }
     }
   }
 
-  // 4. No data anywhere — pure spec-based fallback
-  return QUALITY[qual].tps * targetComp * targetEnv;
+  // 4. No data — spec fallback: quality tier scan time × environment movement overhead only
+  return QUALITY[qual].tps * targetEnv;
 }
 
 function getAvgData(matches, qual) {
