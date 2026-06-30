@@ -171,7 +171,7 @@ function selectLog(id) {
 
 async function deleteLog(id) {
   if (!confirm('Delete this log? This cannot be undone.')) return;
-  await sb.from('scan_logs').delete().eq('id', id);
+  await fetch(AT_URL + '/' + id, { method: 'DELETE', headers: atHeaders() });
   AppState.selLogId = null;
   document.getElementById('log-detail').innerHTML =
     '<div class="det-empty"><div style="font-size:36px">&#x1F4CB;</div><p>Select a log to view details</p></div>';
@@ -180,20 +180,29 @@ async function deleteLog(id) {
 }
 
 async function approveLog(id) {
-  await sb.from('scan_logs').update({ status: 'approved' }).eq('id', id);
+  await fetch(AT_URL + '/' + id, {
+    method: 'PATCH', headers: atHeaders(),
+    body: JSON.stringify({ fields: { status: 'approved' } })
+  });
   await loadLogs();
   await loadApprovedLogs();
   selectLog(id);
 }
 
 async function rejectLog(id) {
-  await sb.from('scan_logs').update({ status: 'rejected' }).eq('id', id);
+  await fetch(AT_URL + '/' + id, {
+    method: 'PATCH', headers: atHeaders(),
+    body: JSON.stringify({ fields: { status: 'rejected' } })
+  });
   await loadLogs();
   selectLog(id);
 }
 
 async function feedToModel(id) {
-  await sb.from('scan_logs').update({ fed_to_model: true }).eq('id', id);
+  await fetch(AT_URL + '/' + id, {
+    method: 'PATCH', headers: atHeaders(),
+    body: JSON.stringify({ fields: { fed_to_model: true } })
+  });
   await loadLogs();
   await loadApprovedLogs();
   selectLog(id);

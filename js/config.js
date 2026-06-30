@@ -1,5 +1,5 @@
-const SUPA_URL = 'https://tgepwqqbywccythbzxxe.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZXB3cXFieXdjY3l0aGJ6eHhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MTc4MzYsImV4cCI6MjA5NTk5MzgzNn0.nTEZShGy8chVz2XeNhHEVwbFqcXLHhHJ1Z4SSHsQQc4';
+const AT_BASE  = '__AT_BASE__';
+const AT_TOKEN = '__AT_TOKEN__';
 
 const SETUP_BUFFER = 30;
 const TOTAL_BATT   = 6;

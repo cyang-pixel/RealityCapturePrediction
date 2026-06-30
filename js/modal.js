@@ -1,6 +1,6 @@
-// New / edit modal — open, close, QT slider logic, and Supabase submit.
+// New / edit modal — open, close, QT slider logic, and submit.
 
-// Per-scanner quality tier config — cols maps each key to the Supabase column
+// Per-scanner quality tier config — cols maps each key to the Airtable field name
 var MODAL_QT_CFG = {
   BLK360: {
     keys:     ['s', 'm', 'd', 'dp'],
@@ -306,16 +306,23 @@ async function submitLog() {
 
   var result;
   if (AppState.editingLogId) {
-    result = await sb.from('scan_logs').update(payload).eq('id', AppState.editingLogId);
+    result = await fetch(AT_URL + '/' + AppState.editingLogId, {
+      method: 'PATCH', headers: atHeaders(),
+      body: JSON.stringify({ fields: payload })
+    });
   } else {
     payload.status       = 'pending';
     payload.fed_to_model = false;
-    result = await sb.from('scan_logs').insert(payload);
+    result = await fetch(AT_URL, {
+      method: 'POST', headers: atHeaders(),
+      body: JSON.stringify({ fields: payload })
+    });
   }
 
-  if (result.error) {
-    console.error('Supabase error:', result.error);
-    showMsg('err', 'Error: ' + result.error.message + '. Make sure Supabase RLS policies allow insert/update.');
+  if (!result.ok) {
+    var errJson = await result.json().catch(function() { return {}; });
+    console.error('Airtable error:', errJson);
+    showMsg('err', 'Error: ' + ((errJson.error && errJson.error.message) || 'Request failed') + '.');
     btn.disabled    = false;
     btn.textContent = AppState.editingLogId ? 'Save changes' : 'Submit for review';
     return;
