@@ -311,8 +311,7 @@ async function submitLog() {
       body: JSON.stringify({ fields: payload })
     });
   } else {
-    payload.status       = 'pending';
-    payload.fed_to_model = false;
+    payload.status = 'pending';
     result = await fetch(AT_URL, {
       method: 'POST', headers: atHeaders(),
       body: JSON.stringify({ fields: payload })
