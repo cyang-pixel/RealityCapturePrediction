@@ -21,9 +21,19 @@ var SCANNER_SECTIONS = [
 
 function renderLogList() {
   var list     = document.getElementById('log-list');
-  var filtered = AppState.logFilter === 'all'
+  var filtered = (AppState.logFilter === 'all'
     ? AppState.allLogs
-    : AppState.allLogs.filter(l => l.status === AppState.logFilter);
+    : AppState.allLogs.filter(l => l.status === AppState.logFilter)).slice();
+
+  var sort = AppState.logSort || 'newest';
+  filtered.sort(function(a, b) {
+    if (sort === 'oldest')        return new Date(a.created_at) - new Date(b.created_at);
+    if (sort === 'scan_date_desc') return (b.scan_date || '').localeCompare(a.scan_date || '');
+    if (sort === 'scan_date_asc')  return (a.scan_date || '').localeCompare(b.scan_date || '');
+    if (sort === 'name_az')        return (a.project_name || '').localeCompare(b.project_name || '');
+    if (sort === 'scans_desc')     return (b.total_scans || 0) - (a.total_scans || 0);
+    return new Date(b.created_at) - new Date(a.created_at); // newest
+  });
 
   var html = '';
   SCANNER_SECTIONS.forEach(function(sc) {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=18">
+  <link rel="stylesheet" href="css/styles.css?v=19">
 </head>
 <body>
 
@@ -366,6 +366,14 @@
             <button class="lft"         onclick="filterLogs('approved',this)">Approved</button>
             <button class="lft"         onclick="filterLogs('rejected',this)">Rejected</button>
           </div>
+          <select class="sort-sel" id="log-sort" onchange="AppState.logSort=this.value;renderLogList()">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="scan_date_desc">Scan date ↓</option>
+            <option value="scan_date_asc">Scan date ↑</option>
+            <option value="name_az">Project A–Z</option>
+            <option value="scans_desc">Most scans</option>
+          </select>
           <button class="new-btn" onclick="openNewModal()">+ New log</button>
         </div>
       </div>
@@ -387,7 +395,7 @@
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=10"></script>
 <script src="js/planner.js?v=15"></script>
-<script src="js/logs.js?v=12"></script>
+<script src="js/logs.js?v=13"></script>
 <script src="js/modal.js?v=9"></script>
 <script src="js/ui.js?v=10"></script>
 <script src="js/main.js?v=7"></script>
