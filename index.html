@@ -17,11 +17,7 @@
       <button class="modal-close" onclick="closeModal()">&#x2715;</button>
     </div>
 
-    <button class="modal-import-strip" onclick="closeModal();openImportPanel()">
-      <span class="mis-icon">&#x1F4C2;</span>
-      <span class="mis-text">Import from scanner folder — auto-fill from .blk files</span>
-      <span class="mis-arrow">&#x2192;</span>
-    </button>
+
 
     <div class="modal-sec">Project info</div>
     <div class="mgrid">
@@ -123,16 +119,6 @@
   </div>
 </div>
 
-<!-- ── IMPORT PANEL ───────────────────────────────────────────────────────── -->
-<div class="modal-ov" id="import-ov">
-  <div class="modal imp-modal">
-    <div class="modal-hdr">
-      <div class="modal-title">Import scanner session</div>
-      <button class="modal-close" onclick="closeImportPanel()">&#x2715;</button>
-    </div>
-    <div id="import-body"></div>
-  </div>
-</div>
 
 <!-- ── SHELL ──────────────────────────────────────────────────────────────── -->
 <div class="shell">
@@ -174,10 +160,7 @@
         <span class="nav-lbl">Post-scan feedback</span>
         <span class="nav-cnt" id="pending-count">0</span>
       </button>
-      <button class="nav-btn" id="nav-import" onclick="openImportPanel()">
-        <div class="nav-icon">&#x1F4C2;</div>
-        <span class="nav-lbl">Import scanner data</span>
-      </button>
+
     </div>
 
     <div class="sb-ft">Reality Capture Prediction &copy; 2026</div>
@@ -406,7 +389,6 @@
 <script src="js/planner.js?v=15"></script>
 <script src="js/logs.js?v=11"></script>
 <script src="js/modal.js?v=9"></script>
-<script src="js/importer.js?v=13"></script>
 <script src="js/ui.js?v=10"></script>
 <script src="js/main.js?v=7"></script>
 
