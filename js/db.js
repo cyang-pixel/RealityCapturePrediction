@@ -44,11 +44,16 @@ function normScanner(s) {
 
 // Map old complexity labels → inter-scan spacing values
 function normSpacing(c) {
-  if (!c) return '12m';
-  if (c === 'Open')     return '12m';
-  if (c === 'Moderate') return '8m';
-  if (c === 'Complex')  return '5m';
-  return c; // already a spacing string like '15m', '12m', '8m', '5m'
+  if (!c) return '40ft';
+  if (c === 'Open')     return '40ft';
+  if (c === 'Moderate') return '25ft';
+  if (c === 'Complex')  return '15ft';
+  // legacy meter values from previous deploy
+  if (c === '15m') return '50ft';
+  if (c === '12m') return '40ft';
+  if (c === '8m')  return '25ft';
+  if (c === '5m')  return '15ft';
+  return c; // already a foot spacing string
 }
 
 async function loadApprovedLogs() {

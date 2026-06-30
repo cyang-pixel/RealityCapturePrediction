@@ -56,10 +56,10 @@
     <div class="fg" style="margin-bottom:8px">
       <label class="flbl">Inter-scan spacing</label>
       <select class="fi" id="m-comp" style="margin-top:5px">
-        <option value="15m">15 m — very open / large halls</option>
-        <option value="12m">12 m — open</option>
-        <option value="8m">8 m — moderate density</option>
-        <option value="5m">5 m — dense / complex spaces</option>
+        <option value="50ft">50 ft — very open / large halls</option>
+        <option value="40ft">40 ft — open</option>
+        <option value="25ft">25 ft — moderate density</option>
+        <option value="15ft">15 ft — dense / complex spaces</option>
       </select>
     </div>
 
@@ -255,10 +255,10 @@
             <div class="fg" style="margin-top:14px;margin-bottom:10px">
               <label class="flbl">Inter-scan spacing <span style="font-weight:400;color:#aaa;text-transform:none;letter-spacing:0">— affects scan count &amp; coverage, not scan time</span></label>
               <div class="sw" id="complexity-grp">
-                <button class="btn grow"        data-comp="15m" onclick="setOpt('spacing','15m',this);updConf()">15 m<span class="btn-cnt"></span></button>
-                <button class="btn grow active" data-comp="12m" onclick="setOpt('spacing','12m',this);updConf()">12 m<span class="btn-cnt"></span></button>
-                <button class="btn grow"        data-comp="8m"  onclick="setOpt('spacing','8m',this);updConf()">8 m<span class="btn-cnt"></span></button>
-                <button class="btn grow"        data-comp="5m"  onclick="setOpt('spacing','5m',this);updConf()">5 m<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="50ft" onclick="setOpt('spacing','50ft',this);updConf()">50 ft<span class="btn-cnt"></span></button>
+                <button class="btn grow active" data-comp="40ft" onclick="setOpt('spacing','40ft',this);updConf()">40 ft<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="25ft" onclick="setOpt('spacing','25ft',this);updConf()">25 ft<span class="btn-cnt"></span></button>
+                <button class="btn grow"        data-comp="15ft" onclick="setOpt('spacing','15ft',this);updConf()">15 ft<span class="btn-cnt"></span></button>
               </div>
             </div>
 
@@ -394,13 +394,13 @@
 
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
-<script src="js/config.js?v=11"></script>
-<script src="js/state.js?v=8"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/state.js?v=9"></script>
 <script src="js/utils.js?v=4"></script>
-<script src="js/db.js?v=11"></script>
-<script src="js/planner.js?v=18"></script>
+<script src="js/db.js?v=12"></script>
+<script src="js/planner.js?v=19"></script>
 <script src="js/logs.js?v=13"></script>
-<script src="js/modal.js?v=9"></script>
+<script src="js/modal.js?v=10"></script>
 <script src="js/ui.js?v=11"></script>
 <script src="js/main.js?v=7"></script>
 

@@ -434,7 +434,7 @@ function loadMission(id) {
     : n + ' type' + (n > 1 ? 's' : '') + ' selected' + (n > 1 ? ' — baselines blended' : '');
 
   // Spacing (backward-compat: old saves stored complexity key with Open/Moderate/Complex values)
-  AppState.spacing = p.spacing || (p.complexity === 'Open' ? '12m' : p.complexity === 'Moderate' ? '8m' : p.complexity === 'Complex' ? '5m' : '12m');
+  AppState.spacing = normSpacing(p.spacing || p.complexity || '40ft');
   document.querySelectorAll('#complexity-grp .btn[data-comp]').forEach(function(b) {
     b.classList.toggle('active', b.dataset.comp === AppState.spacing);
   });
