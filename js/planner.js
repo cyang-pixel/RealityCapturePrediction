@@ -51,7 +51,7 @@ function getEnvMult(envSet) {
 }
 
 // Minimum look-alike records before trusting historic TPS over spec
-var TPS_MIN_LOGS = 5;
+var TPS_MIN_LOGS = 1;
 
 function getAvgTpS(envSet, spacing, qual, matches) {
   // Primary: env-matching logs with enough data points (spacing doesn't affect TPS)
@@ -300,16 +300,18 @@ function calculate() {
   var battTotal   = qtCfg.battTotal   || TOTAL_BATT;
   var battPerUnit = qtCfg.battPerUnit || 1;
 
-  // Base scan duration, then add battery swap overhead (+8 min per swap after the first pack)
-  var D_raw       = (Ps * weightedTps / 60) * Vf * fm;
-  var battCycles  = Math.ceil((D_raw / 60) / weightedBatt);
-  var swapMins    = Math.max(0, battCycles - 1) * 8;
-  var D_adj       = D_raw + swapMins;
+  // Duration = pure scan time only. No overhead baked in.
+  var D_adj       = (Ps * weightedTps / 60) * Vf * fm;
   var D_min       = D_adj * 0.875;
   var D_max       = D_adj * 1.125;
 
   var battMin     = Math.ceil((D_adj / 60) / weightedBatt) * battPerUnit;
   var battRec     = battMin + battPerUnit;
+
+  // Battery swap advisory — shown separately, not added to duration
+  var battCycles  = Math.ceil((D_adj / 60) / weightedBatt);
+  var swapCount   = Math.max(0, battCycles - 1);
+  var swapMins    = swapCount * 8;
   var totalData   = Ps * weightedData;
 
   document.getElementById('arr-time').textContent = minsToStr(finishMins - D_max);
@@ -337,6 +339,18 @@ function calculate() {
   setResult('res-brec',   battRec + ' batteries (+1 buffer)',  battRec > battTotal ? 'warn'   : '');
   setResult('res-bkit',   kitLabel);
   setResult('res-data',   (totalData * 0.875).toFixed(1) + ' – ' + (totalData * 1.125).toFixed(1) + ' GB');
+
+  // Battery swap advisory — not included in duration, shown separately
+  var swapEl = document.getElementById('swap-advisory');
+  if (swapEl) {
+    if (swapCount > 0) {
+      swapEl.style.display = 'flex';
+      document.getElementById('swap-text').textContent =
+        swapCount + ' swap' + (swapCount > 1 ? 's' : '') + ' needed — add ~' + swapMins + ' min if protocol requires it';
+    } else {
+      swapEl.style.display = 'none';
+    }
+  }
 
   var ab = document.getElementById('alert-box');
   if (battRec > battTotal) {

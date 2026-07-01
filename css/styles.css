@@ -247,6 +247,8 @@ select.fi {
 
 /* Alert box */
 .ab         { border-radius: 9px; padding: 10px 14px; font-size: 12px; font-weight: 500; margin-bottom: 12px; display: none; line-height: 1.5; }
+.swap-advisory { display: flex; align-items: flex-start; gap: 8px; background: #F5F0E8; border: 1px solid #E0C98A; border-radius: 9px; padding: 10px 14px; font-size: 11.5px; color: #7A5C1A; font-weight: 500; margin-bottom: 12px; line-height: 1.5; }
+.swap-icon  { font-size: 14px; flex-shrink: 0; line-height: 1.4; }
 .ab.show    { display: block; }
 .adanger    { background: #FFF3F3; border: 1px solid #FFCACA; color: #8B0000; }
 .awarn      { background: #FFF9F0; border: 1px solid #FFDCA0; color: #8B5E00; }

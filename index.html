@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20">
+  <link rel="stylesheet" href="css/styles.css?v=21">
 </head>
 <body>
 
@@ -324,6 +324,11 @@
             <div class="rrow"><span class="rl">Data estimate</span>    <span class="rv empty" id="res-data">&#x2014;</span></div>
           </div>
 
+          <div class="swap-advisory" id="swap-advisory" style="display:none">
+            <span class="swap-icon">&#x1F50B;</span>
+            <span id="swap-text"></span>
+          </div>
+
           <div class="ab" id="alert-box"></div>
 
           <div class="dbc">
@@ -392,11 +397,11 @@
 
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
-<script src="js/config.js?v=15"></script>
+<script src="js/config.js?v=16"></script>
 <script src="js/state.js?v=10"></script>
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=13"></script>
-<script src="js/planner.js?v=19"></script>
+<script src="js/planner.js?v=20"></script>
 <script src="js/logs.js?v=13"></script>
 <script src="js/modal.js?v=11"></script>
 <script src="js/ui.js?v=11"></script>
