@@ -54,10 +54,17 @@ function getEnvMult(envSet) {
 var TPS_MIN_LOGS = 1;
 
 function getAvgTpS(envSet, spacing, qual, matches) {
-  // Primary: env-matching logs with enough data points (spacing doesn't affect TPS)
-  var qm = matches.filter(function(p) { return p.quality_setting === qual; });
+  var baseline = QUALITY[qual] ? QUALITY[qual].tps : 60;
+
+  // Primary: env-matching logs with valid actual_hours + actual_scans
+  var qm = matches.filter(function(p) {
+    return p.quality_setting === qual && p.actual_hours > 0 && p.actual_scans > 0;
+  });
   if (qm.length >= TPS_MIN_LOGS) {
-    return qm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / qm.length;
+    var logged = qm.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / qm.length;
+    // Sanity check: if logged TPS is more than 3× baseline the log data is likely corrupted
+    // (e.g. arrival_time used instead of scan_start). Fall through to baseline in that case.
+    if (logged > 0 && logged <= baseline * 3) return logged;
   }
 
   var targetEnv = getEnvMult(envSet);
@@ -73,11 +80,12 @@ function getAvgTpS(envSet, spacing, qual, matches) {
     var ae = adjEnvs[ei];
     var aem = AppState.DB.filter(function(p) {
       var t = Array.isArray(p.env_type) ? p.env_type : [p.env_type];
-      return t.indexOf(ae) !== -1 && p.delay_profile !== 'Major' && p.quality_setting === qual;
+      return t.indexOf(ae) !== -1 && p.delay_profile !== 'Major' && p.quality_setting === qual &&
+             p.actual_hours > 0 && p.actual_scans > 0;
     });
     if (aem.length > 0) {
       var tps = aem.reduce(function(a, p) { return a + (p.actual_hours * 3600 / p.actual_scans); }, 0) / aem.length;
-      return tps * (targetEnv / (ENV_TPS_MULT[ae] || 1.0));
+      if (tps > 0 && tps <= baseline * 3) return tps * (targetEnv / (ENV_TPS_MULT[ae] || 1.0));
     }
   }
 
@@ -264,10 +272,13 @@ function calculate() {
 
   // TPS/data/batt use all env-matching logs regardless of spacing — spacing
   // only drives scan count (area mode), not how long each scan takes.
+  // Require actual_hours > 0 and actual_scans > 0 to exclude logs with missing scan_start.
   var tpsMatches = AppState.DB.filter(function(p) {
     return p.scanner === AppState.selScanner &&
       envMatch(AppState.selEnvs, p.env_type) &&
-      p.delay_profile !== 'Major';
+      p.delay_profile !== 'Major' &&
+      p.actual_hours > 0 &&
+      p.actual_scans > 0;
   });
 
   // Weighted quality values across all active tiers
