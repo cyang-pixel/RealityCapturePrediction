@@ -3,6 +3,7 @@
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p    => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id === 'logs') document.querySelectorAll('.scb').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
   if (id === 'logs') loadLogs();

@@ -3,15 +3,33 @@
 var _chartTPS     = null;
 var _chartScatter = null;
 
-var BLK_TIERS = ['Fast+ (50mm)', 'Fast (25mm)', 'Dense (12mm)', 'Dense+ (6mm)'];
+var BLK_TIERS  = ['Fast+ (50mm)', 'Fast (25mm)', 'Dense (12mm)', 'Dense+ (6mm)'];
 var BLK_LABELS = { 'Fast+ (50mm)': 'Fast+ 50mm', 'Fast (25mm)': 'Fast 25mm', 'Dense (12mm)': 'Dense 12mm', 'Dense+ (6mm)': 'Dense+ 6mm' };
 
 function renderCharts() {
-  var logs = AppState.DB.filter(function(p) {
+  var fedLogs = AppState.DB.filter(function(p) {
     return p.actual_hours > 0 && p.actual_scans > 0 && p.scanner === 'BLK360';
   });
-  renderTPSChart(logs);
-  renderScatterChart(logs);
+
+  // Approved but not yet fed to model — compute from allLogs
+  var notFedLogs = (AppState.allLogs || []).filter(function(l) {
+    return l.status === 'approved' && !l.fed_to_model && normScanner(l.scanner) === 'BLK360';
+  }).map(function(l) {
+    var hrs   = calcHours(l.scan_start, l.departure_time);
+    var scans = parseInt(l.total_scans) || 0;
+    if (hrs <= 0 || scans <= 0) return null;
+    var tiers = {
+      'Fast+ (50mm)': parseFloat(l.quality_standard)  || 0,
+      'Fast (25mm)':  parseFloat(l.quality_medium)    || 0,
+      'Dense (12mm)': parseFloat(l.quality_dense)     || 0,
+      'Dense+ (6mm)': parseFloat(l.quality_denseplus) || 0
+    };
+    var dominant = Object.keys(tiers).reduce(function(a, b) { return tiers[a] >= tiers[b] ? a : b; });
+    return { quality_setting: dominant, actual_hours: hrs, actual_scans: scans, id: l.id };
+  }).filter(Boolean);
+
+  renderTPSChart(fedLogs);
+  renderScatterChart(fedLogs, notFedLogs);
 }
 
 // ── Chart 1: Average TPS by quality tier ──────────────────────────────────────
@@ -41,47 +59,25 @@ function renderTPSChart(logs) {
           label: 'Logged avg',
           data: loggedTPS,
           backgroundColor: BLK_TIERS.map(function(t) { return QTC[t] || '#ccc'; }),
-          borderRadius: 5,
-          borderSkipped: false,
-          barPercentage: 0.5,
+          borderRadius: 5, borderSkipped: false, barPercentage: 0.5,
         },
         {
           label: 'Model baseline',
           data: modelTPS,
-          backgroundColor: 'rgba(0,0,0,0.07)',
-          borderColor: 'rgba(0,0,0,0.18)',
-          borderWidth: 1,
-          borderRadius: 5,
-          borderSkipped: false,
-          barPercentage: 0.5,
+          backgroundColor: 'rgba(0,0,0,0.07)', borderColor: 'rgba(0,0,0,0.18)', borderWidth: 1,
+          borderRadius: 5, borderSkipped: false, barPercentage: 0.5,
         }
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { family: 'Sora', size: 10 }, boxWidth: 10, padding: 10 }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(c) { return c.dataset.label + ': ' + (c.parsed.y !== null ? c.parsed.y + 's' : 'no data'); }
-          }
-        }
+        legend: { position: 'bottom', labels: { font: { family: 'Sora', size: 10 }, boxWidth: 10, padding: 10 } },
+        tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + (c.parsed.y !== null ? c.parsed.y + 's' : 'no data'); } } }
       },
       scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'seconds / scan', font: { size: 10, family: 'Sora' }, color: '#bbb' },
-          grid: { color: '#F0F0F0' },
-          ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' }
-        },
-        x: {
-          grid: { display: false },
-          ticks: { font: { family: 'Sora', size: 10 }, color: '#555' }
-        }
+        y: { beginAtZero: true, title: { display: true, text: 'seconds / scan', font: { size: 10, family: 'Sora' }, color: '#bbb' }, grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' } },
+        x: { grid: { display: false }, ticks: { font: { family: 'Sora', size: 10 }, color: '#555' } }
       }
     }
   });
@@ -91,34 +87,52 @@ function renderTPSChart(logs) {
 }
 
 // ── Chart 2: Scan count vs duration scatter ───────────────────────────────────
-function renderScatterChart(logs) {
+function renderScatterChart(fedLogs, notFedLogs) {
   var ctx = document.getElementById('chart-scatter');
   if (!ctx) return;
   if (_chartScatter) { _chartScatter.destroy(); _chartScatter = null; }
 
+  var allLogs = fedLogs.concat(notFedLogs || []);
   var maxScans = 10;
-  logs.forEach(function(p) { if (p.actual_scans > maxScans) maxScans = p.actual_scans; });
+  allLogs.forEach(function(p) { if (p.actual_scans > maxScans) maxScans = p.actual_scans; });
   maxScans = Math.ceil(maxScans * 1.1);
 
   var datasets = [];
 
-  // Scatter points per tier
+  // Solid dots — fed to model
   BLK_TIERS.forEach(function(tier) {
-    var points = logs
+    var points = fedLogs
       .filter(function(p) { return p.quality_setting === tier; })
       .map(function(p) { return { x: p.actual_scans, y: Math.round(p.actual_hours * 60), id: p.id }; });
     if (!points.length) return;
     datasets.push({
-      label: BLK_LABELS[tier],
+      label: BLK_LABELS[tier] + ' (in model)',
       data: points,
       backgroundColor: QTC[tier] || '#ccc',
-      pointRadius: 6,
-      pointHoverRadius: 8,
+      borderColor: QTC[tier] || '#ccc',
+      pointRadius: 6, pointHoverRadius: 8,
       type: 'scatter',
     });
   });
 
-  // Dashed model prediction lines per tier
+  // Hollow dots — approved, not yet fed
+  BLK_TIERS.forEach(function(tier) {
+    var points = (notFedLogs || [])
+      .filter(function(p) { return p.quality_setting === tier; })
+      .map(function(p) { return { x: p.actual_scans, y: Math.round(p.actual_hours * 60), id: p.id }; });
+    if (!points.length) return;
+    datasets.push({
+      label: BLK_LABELS[tier] + ' (pending)',
+      data: points,
+      backgroundColor: 'rgba(255,255,255,0.9)',
+      borderColor: QTC[tier] || '#ccc',
+      borderWidth: 2,
+      pointRadius: 6, pointHoverRadius: 8,
+      type: 'scatter',
+    });
+  });
+
+  // Dashed model prediction lines
   BLK_TIERS.forEach(function(tier) {
     if (!QUALITY[tier]) return;
     var tps = QUALITY[tier].tps;
@@ -130,8 +144,7 @@ function renderScatterChart(logs) {
       borderWidth: 1.5,
       borderDash: [5, 4],
       pointRadius: 0,
-      fill: false,
-      tension: 0,
+      fill: false, tension: 0,
     });
   });
 
@@ -139,8 +152,7 @@ function renderScatterChart(logs) {
     type: 'scatter',
     data: { datasets: datasets },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       onClick: function(evt, elements) {
         if (!elements.length) return;
         var el = elements[0];
@@ -166,31 +178,32 @@ function renderScatterChart(logs) {
           position: 'bottom',
           labels: {
             font: { family: 'Sora', size: 10 }, boxWidth: 10, padding: 10,
-            filter: function(item) { return !item.text.includes(' model'); }
+            filter: function(item) { return !item.text.includes(' model'); },
+            generateLabels: function(chart) {
+              var defaults = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+              // Show hollow dot for pending items in legend
+              defaults.forEach(function(item) {
+                if (item.text.includes('(pending)')) {
+                  item.fillStyle = 'rgba(255,255,255,0.9)';
+                }
+              });
+              return defaults.filter(function(item) { return !item.text.includes(' model'); });
+            }
           }
         },
         tooltip: {
           filter: function(item) { return !item.dataset.label.includes(' model'); },
           callbacks: {
             label: function(c) {
-              return c.dataset.label + ': ' + c.parsed.x + ' scans · ' + c.parsed.y + ' min';
+              var fed = c.dataset.label.includes('(in model)') ? ' · in model' : ' · not yet fed';
+              return c.dataset.label.replace(' (in model)', '').replace(' (pending)', '') + ': ' + c.parsed.x + ' scans · ' + c.parsed.y + ' min' + fed;
             }
           }
         }
       },
       scales: {
-        x: {
-          title: { display: true, text: 'scan count', font: { size: 10, family: 'Sora' }, color: '#bbb' },
-          beginAtZero: true,
-          grid: { color: '#F0F0F0' },
-          ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' }
-        },
-        y: {
-          title: { display: true, text: 'duration (min)', font: { size: 10, family: 'Sora' }, color: '#bbb' },
-          beginAtZero: true,
-          grid: { color: '#F0F0F0' },
-          ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' }
-        }
+        x: { title: { display: true, text: 'scan count', font: { size: 10, family: 'Sora' }, color: '#bbb' }, beginAtZero: true, grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' } },
+        y: { title: { display: true, text: 'duration (min)', font: { size: 10, family: 'Sora' }, color: '#bbb' }, beginAtZero: true, grid: { color: '#F0F0F0' }, ticks: { font: { family: 'Sora', size: 10 }, color: '#aaa' } }
       }
     }
   });

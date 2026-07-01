@@ -298,7 +298,7 @@ select.fi {
 #page-logs  { }
 .log-body   { display: grid; grid-template-columns: 1fr 380px; align-items: start; }
 .log-list   { padding: 16px 20px; border-right: 1px solid #E2E2E2; background: #fff; }
-.log-detail { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 20px; background: #F5F5F3; border-left: 1px solid #E2E2E2; }
+.log-detail { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 18px 20px; background: #F5F5F3; border-left: 1px solid #E2E2E2; z-index: 1; }
 
 /* Scanner sections */
 .sc-section      { margin-bottom: 22px; }
@@ -329,12 +329,11 @@ select.fi {
 .lcard        { background: #fff; border: 1px solid #E2E2E2; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all .2s; }
 .lcard:hover  { border-color: #bbb; box-shadow: 0 3px 12px rgba(0,0,0,.06); transform: translateY(-1px); }
 .lcard.sel    { border-color: #111; border-width: 2px; box-shadow: 0 4px 16px rgba(0,0,0,.1); }
-.lcard-top    { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
-.lcard-name   { font-size: 13px; font-weight: 700; color: #111; }
+.lcard-top    { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.lcard-name   { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 6px; }
 .lcard-date   { font-size: 11px; color: #bbb; text-align: right; }
-.lcard-time   { font-size: 10px; color: #ccc; margin-top: 1px; }
+.lcard-time   { font-size: 10px; color: #ccc; margin-top: 1px; text-align: right; }
 .lcard-meta         { display: flex; flex-wrap: wrap; gap: 5px; }
-.lcard-meta--sub    { margin-top: 4px; }
 
 /* Pills */
 .pill         { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: #F5F5F5; color: #777; }
@@ -381,6 +380,8 @@ select.fi {
 .appr-r:hover { background: #A32D2D; color: #fff; }
 .feed-btn     { width: 100%; padding: 12px; background: #111; color: #fff; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: none; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
 .feed-btn:hover { background: #222; transform: translateY(-2px); box-shadow: 0 0 0 1.5px rgba(255,255,255,.2), 0 8px 24px rgba(0,0,0,.35); }
+.unfeed-btn   { width: 100%; padding: 12px; background: #fff; color: #7A4E00; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #F5D9A0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
+.unfeed-btn:hover { background: #FFF8EC; border-color: #EFA050; }
 .dup-btn      { width: 100%; padding: 12px; background: #fff; color: #111; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #E0E0E0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }
 .dup-btn:hover  { border-color: #111; background: #F8F8F8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
 .edit-btn     { width: 100%; padding: 12px; background: #fff; color: #111; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; border: 1px solid #E0E0E0; border-radius: 8px; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: all .18s; }

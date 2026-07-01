@@ -53,9 +53,9 @@ function renderLogList() {
         var dt  = fmtDateTime(l.created_at);
         var dom      = l.delay_level && l.delay_level !== 'None'
           ? '<span class="pill amber">' + l.delay_level + ' delay</span>' : '';
-        var fed      = l.fed_to_model ? '<span class="pill green">In model</span>' : '';
-        var notFed   = (l.status === 'approved' && !l.fed_to_model)
-          ? '<span class="pill not-fed">Not in model</span>' : '';
+        var fedBadge = l.fed_to_model
+          ? '<span class="sbadge sa">In model</span>'
+          : (l.status === 'approved' ? '<span class="pill not-fed" style="white-space:nowrap">Not in model</span>' : '');
         var scanDate = l.scan_date
           ? '<span class="pill">' + fmtDate(l.scan_date) + '</span>' : '';
         var who      = l.submitted_by
@@ -63,25 +63,25 @@ function renderLogList() {
         return (
           '<div class="lcard' + sel + '" data-id="' + l.id + '" onclick="selectLog(\'' + l.id + '\')">'
           + '<div class="lcard-top">'
-          +   '<div class="lcard-name">' + escHtml(l.project_name) + '</div>'
           +   '<div>'
+          +     '<div class="lcard-name">' + escHtml(l.project_name) + '</div>'
+          +     '<div class="lcard-meta">'
+          +       '<span class="pill blue">' + escHtml(l.environment) + '</span>'
+          +       '<span class="pill">' + escHtml(normSpacing(l.complexity) || '') + '</span>'
+          +       '<span class="pill">' + l.total_scans + ' scans</span>'
+          +       '<span class="pill">' + l.batteries_used + ' batt</span>'
+          +       dom + scanDate + who
+          +     '</div>'
+          +   '</div>'
+          +   '<div style="flex-shrink:0;text-align:right">'
           +     '<div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:3px">'
+          +       fedBadge
           +       '<span class="sbadge ' + st + '">' + l.status + '</span>'
           +     '</div>'
           +     '<div class="lcard-date">' + dt.date + '</div>'
           +     '<div class="lcard-time">' + dt.time + '</div>'
           +   '</div>'
           + '</div>'
-          + '<div class="lcard-meta">'
-          +   '<span class="pill blue">' + escHtml(l.environment) + '</span>'
-          +   '<span class="pill">' + escHtml(normSpacing(l.complexity) || '') + '</span>'
-          +   '<span class="pill">' + l.total_scans + ' scans</span>'
-          +   '<span class="pill">' + l.batteries_used + ' batt</span>'
-          +   dom + fed + notFed
-          + '</div>'
-          + (scanDate || who
-            ? '<div class="lcard-meta lcard-meta--sub">' + scanDate + who + '</div>'
-            : '')
           + '</div>'
         );
       }).join('');
@@ -169,10 +169,15 @@ function selectLog(id) {
       +   '<button class="appr-btn appr-r" onclick="rejectLog(\'' + l.id + '\')">Reject</button>'
       + '</div>'
       : '<div style="font-size:12px;color:#aaa;margin-bottom:6px">Status: <strong style="color:#111">' + l.status + '</strong>'
-      +   (l.fed_to_model ? ' &middot; <span style="color:#0F6E56;font-weight:700">Fed to model &#x2713;</span>' : '')
+      +   (l.fed_to_model
+           ? ' &middot; <span style="color:#0F6E56;font-weight:700">Fed to model &#x2713;</span>'
+           : (l.status === 'approved' ? ' &middot; <span style="color:#999;font-weight:600">Not yet fed to model</span>' : ''))
       + '</div>')
     + (canFeed
       ? '<button class="feed-btn" onclick="feedToModel(\'' + l.id + '\')">&#x2192; Feed to calculation model</button>'
+      : '')
+    + (l.fed_to_model
+      ? '<button class="unfeed-btn" onclick="unfeedFromModel(\'' + l.id + '\')">&#x2296; Remove from model</button>'
       : '')
     + '<button class="dup-btn" onclick="duplicateLog(\'' + l.id + '\')">&#x2398; Duplicate this log</button>'
     + '<button class="edit-btn" onclick="openEditModal(\'' + l.id + '\')">&#x270E; Edit this log</button>'
@@ -213,6 +218,17 @@ async function feedToModel(id) {
   await fetch(AT_URL + '/' + id, {
     method: 'PATCH', headers: atHeaders(),
     body: JSON.stringify({ fields: { fed_to_model: 'true' } })
+  });
+  await loadLogs();
+  await loadApprovedLogs();
+  selectLog(id);
+}
+
+async function unfeedFromModel(id) {
+  if (!confirm('Remove this log from the calculation model?')) return;
+  await fetch(AT_URL + '/' + id, {
+    method: 'PATCH', headers: atHeaders(),
+    body: JSON.stringify({ fields: { fed_to_model: 'false' } })
   });
   await loadLogs();
   await loadApprovedLogs();

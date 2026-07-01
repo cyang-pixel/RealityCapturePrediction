@@ -5,18 +5,21 @@ var MODAL_QT_CFG = {
   BLK360: {
     keys:     ['s', 'm', 'd', 'dp'],
     labels:   { s: 'Fast+ 50mm', m: 'Fast 25mm', d: 'Dense 12mm', dp: 'Dense+ 6mm' },
+    hints:    { s: '· ~7s scan', m: '· 30s scan', d: '· 42s scan', dp: '· ~75s scan' },
     cols:     { s: 'quality_standard', m: 'quality_medium', d: 'quality_dense', dp: 'quality_denseplus' },
     defaults: { s: 0, m: 0, d: 100, dp: 0 }
   },
   RTC360: {
     keys:     ['l', 'm', 'h'],
     labels:   { l: 'Low · 12mm', m: 'Medium · 6mm', h: 'High · 3mm' },
+    hints:    { l: '· 1:26', m: '· 1:51', h: '· 2:42' },
     cols:     { l: 'quality_standard', m: 'quality_medium', h: 'quality_dense' },
     defaults: { l: 0, m: 100, h: 0 }
   },
   VLX: {
     keys:     ['s', 'm', 'd', 'dp'],
     labels:   { s: 'Fast+ 50mm', m: 'Fast 25mm', d: 'Dense 12mm', dp: 'Dense+ 6mm' },
+    hints:    { s: '· ~7s scan', m: '· 30s scan', d: '· 42s scan', dp: '· ~75s scan' },
     cols:     { s: 'quality_standard', m: 'quality_medium', d: 'quality_dense', dp: 'quality_denseplus' },
     defaults: { s: 0, m: 0, d: 100, dp: 0 }
   }
@@ -307,6 +310,8 @@ async function submitLog() {
 
   var result;
   if (AppState.editingLogId) {
+    var editingLog = AppState.allLogs.find(function(l) { return l.id === AppState.editingLogId; });
+    if (editingLog && editingLog.fed_to_model) payload.fed_to_model = 'false';
     result = await fetch(AT_URL + '/' + AppState.editingLogId, {
       method: 'PATCH', headers: atHeaders(),
       body: JSON.stringify({ fields: payload })
