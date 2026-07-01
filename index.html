@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=23">
+  <link rel="stylesheet" href="css/styles.css?v=24">
 </head>
 <body>
 
@@ -121,6 +121,22 @@
   </div>
 </div>
 
+
+<!-- ── CHART EXPAND MODAL ─────────────────────────────────────────────────── -->
+<div class="chart-modal-ov" id="chart-modal-ov" onclick="closeChartModal(event)">
+  <div class="chart-modal-box">
+    <div class="chart-modal-hdr">
+      <div>
+        <div class="chart-modal-title" id="chart-modal-title"></div>
+        <div id="chart-modal-vsub" style="margin-top:6px"></div>
+      </div>
+      <button class="chart-modal-close" onclick="closeChartModal()">&times;</button>
+    </div>
+    <div class="chart-modal-canvas-wrap">
+      <canvas id="chart-modal-canvas"></canvas>
+    </div>
+  </div>
+</div>
 
 <!-- ── SHELL ──────────────────────────────────────────────────────────────── -->
 <div class="shell">
@@ -373,17 +389,29 @@
         <p>Field submissions &middot; admin approval &middot; model calibration</p>
       </div>
       <div class="chart-panel">
-        <div class="chart-card">
-          <div class="chart-card-title">Avg Time Per Scan · Quality Tier</div>
+        <div class="chart-card chart-card--click" onclick="openChartModal('tps')">
+          <div class="chart-card-top">
+            <div>
+              <div class="chart-card-title">Avg Time Per Scan · Quality Tier</div>
+              <div class="chart-kpi" id="chart-tps-kpi"><span class="chart-kpi-sub">Loading&hellip;</span></div>
+            </div>
+            <span class="chart-expand-icon">&#x2197;</span>
+          </div>
           <div class="chart-vsub">
             <span class="vleg"><span class="vbar" style="background:#5DCAA5"></span>Logged avg</span>
             <span class="vleg"><span class="vbar" style="background:#E8E8E8;border:1px solid #ddd"></span>Model baseline</span>
           </div>
-          <div class="chart-canvas-wrap"><canvas id="chart-tps"></canvas></div>
+          <div class="chart-canvas-wrap-mini"><canvas id="chart-tps"></canvas></div>
           <div class="chart-note" id="chart-tps-note"></div>
         </div>
-        <div class="chart-card">
-          <div class="chart-card-title">Scan Count vs Duration</div>
+        <div class="chart-card chart-card--click" onclick="openChartModal('scatter')">
+          <div class="chart-card-top">
+            <div>
+              <div class="chart-card-title">Scan Count vs Duration</div>
+              <div class="chart-kpi" id="chart-scatter-kpi"><span class="chart-kpi-sub">Loading&hellip;</span></div>
+            </div>
+            <span class="chart-expand-icon">&#x2197;</span>
+          </div>
           <div class="chart-vsub">
             <span class="vleg"><span class="vdot" style="background:#C0DD97"></span>Fast+ 50mm</span>
             <span class="vleg"><span class="vdot" style="background:#5DCAA5"></span>Fast 25mm</span>
@@ -392,7 +420,7 @@
             <span class="vleg"><span class="vdot vdot-hollow" style="border-color:#5DCAA5"></span>pending</span>
             <span class="vleg"><span class="vdash"></span>model prediction</span>
           </div>
-          <div class="chart-canvas-wrap"><canvas id="chart-scatter"></canvas></div>
+          <div class="chart-canvas-wrap-mini"><canvas id="chart-scatter"></canvas></div>
         </div>
       </div>
 
@@ -438,7 +466,7 @@
 <script src="js/logs.js?v=15"></script>
 <script src="js/modal.js?v=12"></script>
 <script src="js/ui.js?v=12"></script>
-<script src="js/charts.js?v=4"></script>
+<script src="js/charts.js?v=5"></script>
 <script src="js/main.js?v=7"></script>
 
 </body>
