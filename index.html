@@ -260,36 +260,43 @@
               </div>
             </div>
 
-            <div class="pb">
-              <div class="slbl">Scan quality tier</div>
-              <div id="qt-sliders-wrap" style="margin-top:8px"></div>
-              <div class="qt-bar" id="planner-qt-bar" style="margin-top:10px"></div>
-              <div class="qt-legend" id="planner-qt-legend" style="margin-top:6px"></div>
-            </div>
-
-            <div class="pb">
-              <div class="slbl">Vertical factor</div>
-              <div class="sw" id="floors-grp">
-                <button class="btn grow active" onclick="setFloors('single',this)">Single floor</button>
-                <button class="btn grow"        onclick="setFloors('multi',this)">Multi-floor</button>
-              </div>
-              <div class="flrr" id="flr-row">
-                <div class="fg">
-                  <label class="flbl">Number of floors</label>
-                  <input type="number" class="fi" id="floor-count" value="2" min="2" max="50">
+            <div class="qt-vf-grid">
+              <div class="pb">
+                <div class="slbl">Scan quality tier</div>
+                <div id="qt-sliders-wrap" style="margin-top:8px"></div>
+                <div class="qt-bar-wrap">
+                  <div class="qt-total-row" style="padding-top:6px;border-top:1px solid #F0F0F0;margin-bottom:8px"><span class="qt-total-lbl">Total</span><span class="qt-total-val qt-ok" id="pqt-total">100%</span></div>
+                  <div class="qt-bar" id="planner-qt-bar"></div>
+                  <div class="qt-legend" id="planner-qt-legend" style="margin-top:6px"></div>
                 </div>
               </div>
-            </div>
 
-            <div class="pb">
-              <div class="slbl">Site conditions <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
-              <div class="sw" id="site-cond-grp">
-                <button class="btn active" data-val="none"         data-mult="0"    onclick="toggleCond(this)">None</button>
-                <button class="btn"        data-val="construction" data-mult="0.15" onclick="toggleCond(this)">Construction +15%</button>
-                <button class="btn"        data-val="escort"       data-mult="0.10" onclick="toggleCond(this)">Escort +10%</button>
-                <button class="btn"        data-val="traffic"      data-mult="0.20" onclick="toggleCond(this)">Heavy traffic +20%</button>
-                <button class="btn"        data-val="permits"      data-mult="0.08" onclick="toggleCond(this)">Permit delays +8%</button>
-                <button class="btn"        data-val="restricted"   data-mult="0.12" onclick="toggleCond(this)">Restricted access +12%</button>
+              <div class="qt-right-col">
+                <div class="pb">
+                  <div class="slbl">Vertical factor</div>
+                  <div class="sw" id="floors-grp">
+                    <button class="btn grow active" onclick="setFloors('single',this)">Single floor</button>
+                    <button class="btn grow"        onclick="setFloors('multi',this)">Multi-floor</button>
+                  </div>
+                  <div class="flrr" id="flr-row">
+                    <div class="fg">
+                      <label class="flbl">Number of floors</label>
+                      <input type="number" class="fi" id="floor-count" value="2" min="2" max="50">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pb">
+                  <div class="slbl">Site conditions <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
+                  <div class="sw" id="site-cond-grp">
+                    <button class="btn active" data-val="none"         data-mult="0"    onclick="toggleCond(this)">None</button>
+                    <button class="btn"        data-val="construction" data-mult="0.15" onclick="toggleCond(this)">Construction +15%</button>
+                    <button class="btn"        data-val="escort"       data-mult="0.10" onclick="toggleCond(this)">Escort +10%</button>
+                    <button class="btn"        data-val="traffic"      data-mult="0.20" onclick="toggleCond(this)">Heavy traffic +20%</button>
+                    <button class="btn"        data-val="permits"      data-mult="0.08" onclick="toggleCond(this)">Permit delays +8%</button>
+                    <button class="btn"        data-val="restricted"   data-mult="0.12" onclick="toggleCond(this)">Restricted access +12%</button>
+                  </div>
+                </div>
               </div>
             </div>
             <div style="padding-top:8px">

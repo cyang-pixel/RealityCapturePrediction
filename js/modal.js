@@ -34,7 +34,8 @@ function renderModalQTSliders(scanner, vals) {
   cfg.keys.forEach(function(k) {
     var def = (v[k] !== undefined ? v[k] : cfg.defaults[k]) || 0;
     html += '<div class="qt-slider-row">'
-      + '<span class="qt-slider-label">' + cfg.labels[k] + '</span>'
+      + '<div class="qt-slider-label-wrap"><span class="qt-slider-label">' + cfg.labels[k] + '</span>'
+      + '<span class="qt-slider-hint">' + (cfg.hints[k] || '') + '</span></div>'
       + '<input type="range" class="qt-slider" id="qs-' + k + '" min="0" max="100" value="' + def + '" step="5" oninput="autoBalanceQT(\'' + k + '\')">'
       + '<span class="qt-pct-display" id="qp-' + k + '">' + def + '%</span>'
       + '</div>';

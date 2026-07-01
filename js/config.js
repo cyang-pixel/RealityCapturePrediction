@@ -20,7 +20,7 @@ const SCANNER_QT = {
     keys:      ['s', 'm', 'd', 'dp'],
     map:       { s: 'Fast+ (50mm)', m: 'Fast (25mm)', d: 'Dense (12mm)', dp: 'Dense+ (6mm)' },
     labels:    { s: 'Fast+ 50mm', m: 'Fast 25mm', d: 'Dense 12mm', dp: 'Dense+ 6mm' },
-    hints:     { s: '· ~7s spec + 15s walk (unverified)', m: '· 30s scan + 15s walk', d: '· 42s scan + 15s walk', dp: '· ~75s spec + 15s walk (unverified)' },
+    hints:     { s: '· ~7s scan', m: '· 30s scan', d: '· 42s scan', dp: '· ~75s scan' },
     defaults:  { s: 0, m: 0, d: 100, dp: 0 },
     battTotal: 6
   },
@@ -85,10 +85,10 @@ const SCANNERS = {
 const QUALITY = {
   // BLK360 — tps = measured scan time (button-press to iPad sync) + 15s walk (BLK360 G2 auto-levels)
   // Fast 25mm: 30s measured. Dense 12mm: 42s measured. Fast+ and Dense+ not yet field-measured.
-  'Fast+ (50mm)': { tps: 22,  battLifeHrs: 5.0, dataGbScan: 0.10, sfScanMult: 0.55, hint: '~7s spec + 15s walk = 22s/position (not yet measured)' },
-  'Fast (25mm)':  { tps: 45,  battLifeHrs: 3.3, dataGbScan: 0.18, sfScanMult: 0.80, hint: '30s scan + 15s walk = 45s/position' },
-  'Dense (12mm)': { tps: 57,  battLifeHrs: 2.5, dataGbScan: 0.29, sfScanMult: 1.00, hint: '42s scan + 15s walk = 57s/position' },
-  'Dense+ (6mm)': { tps: 90,  battLifeHrs: 1.8, dataGbScan: 0.48, sfScanMult: 1.85, hint: '~75s spec + 15s walk = 90s/position (not yet measured)' },
+  'Fast+ (50mm)': { tps: 22,  battLifeHrs: 5.0, dataGbScan: 0.10, sfScanMult: 0.55, hint: '~7s scan · 22s/position' },
+  'Fast (25mm)':  { tps: 45,  battLifeHrs: 3.3, dataGbScan: 0.18, sfScanMult: 0.80, hint: '30s scan · 45s/position' },
+  'Dense (12mm)': { tps: 57,  battLifeHrs: 2.5, dataGbScan: 0.29, sfScanMult: 1.00, hint: '42s scan · 57s/position' },
+  'Dense+ (6mm)': { tps: 90,  battLifeHrs: 1.8, dataGbScan: 0.48, sfScanMult: 1.85, hint: '~75s scan · 90s/position' },
   // RTC360 — tps = full position time (scan + tripod setup + levelling + movement overhead)
   // Anchored to field estimate: 65–80 scans / 8am–3pm = ~348s effective at Medium 6mm
   // Overhead per position ≈ 237s constant across tiers (heavy tripod scanner)

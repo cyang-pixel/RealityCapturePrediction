@@ -159,15 +159,14 @@ function renderQTSliders(hw) {
   cfg.keys.forEach(function(k) {
     var def = cfg.defaults[k] || 0;
     html += '<div class="qt-slider-row">'
-      + '<span class="qt-slider-label">' + cfg.labels[k]
-      + ' <span style="font-size:10px;color:#bbb;font-weight:400">' + cfg.hints[k] + '</span></span>'
+      + '<div class="qt-slider-label-wrap"><span class="qt-slider-label">' + cfg.labels[k] + '</span>'
+      + '<span class="qt-slider-hint">' + cfg.hints[k] + '</span></div>'
       + '<input type="range" class="qt-slider" id="pqs-' + k + '" min="0" max="100" value="' + def + '" step="5" oninput="autoBalancePlannerQT(\'' + k + '\')">'
       + '<input type="number" class="qt-pct-input" id="pqp-' + k + '" value="' + def + '" min="0" max="100" step="5" oninput="syncSliderFromInput(\'' + k + '\',this)">'
       + '<span class="qt-pct-unit">%</span>'
       + '</div>';
   });
-  html += '<div class="qt-total-row"><span class="qt-total-lbl">Total</span>'
-    + '<span class="qt-total-val qt-ok" id="pqt-total">100%</span></div></div>';
+  html += '</div>';
   document.getElementById('qt-sliders-wrap').innerHTML = html;
 
   var newQT = {};
