@@ -106,7 +106,7 @@ function renderScatterChart(logs) {
   BLK_TIERS.forEach(function(tier) {
     var points = logs
       .filter(function(p) { return p.quality_setting === tier; })
-      .map(function(p) { return { x: p.actual_scans, y: Math.round(p.actual_hours * 60) }; });
+      .map(function(p) { return { x: p.actual_scans, y: Math.round(p.actual_hours * 60), id: p.id }; });
     if (!points.length) return;
     datasets.push({
       label: BLK_LABELS[tier],
@@ -141,6 +141,26 @@ function renderScatterChart(logs) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      onClick: function(evt, elements) {
+        if (!elements.length) return;
+        var el = elements[0];
+        var pt = _chartScatter.data.datasets[el.datasetIndex].data[el.index];
+        if (!pt || !pt.id) return;
+        AppState.logFilter = 'all';
+        document.querySelectorAll('#filter-tabs .lft').forEach(function(b, i) {
+          b.classList.toggle('active', i === 0);
+        });
+        selectLog(pt.id);
+        setTimeout(function() {
+          var card = document.querySelector('[data-id="' + pt.id + '"]');
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 60);
+      },
+      onHover: function(evt, elements) {
+        var hasPt = elements.length > 0 &&
+          _chartScatter.data.datasets[elements[0].datasetIndex].data[elements[0].index].id;
+        evt.native.target.style.cursor = hasPt ? 'pointer' : 'default';
+      },
       plugins: {
         legend: {
           position: 'bottom',

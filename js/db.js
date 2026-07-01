@@ -66,6 +66,7 @@ async function loadApprovedLogs() {
   AppState.DB = [];
   records.forEach(function(r) {
     AppState.DB.push({
+      id:              r.id,
       scanner:         normScanner(r.scanner),
       sq_ft:           r.sq_ft || 0,
       env_type:        r.environment ? r.environment.split(',').map(function(e) { return e.trim(); }) : [],

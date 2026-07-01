@@ -369,27 +369,8 @@
     <!-- Logs page -->
     <div class="page" id="page-logs">
       <div class="log-hdr">
-        <div class="log-hdr-left">
-          <h2>Post-scan feedback log</h2>
-          <p>Field submissions &middot; admin approval &middot; model calibration</p>
-        </div>
-        <div class="log-hdr-right">
-          <div class="ftabs" id="filter-tabs">
-            <button class="lft active"  onclick="filterLogs('all',this)">All</button>
-            <button class="lft"         onclick="filterLogs('pending',this)">Pending</button>
-            <button class="lft"         onclick="filterLogs('approved',this)">Approved</button>
-            <button class="lft"         onclick="filterLogs('rejected',this)">Rejected</button>
-          </div>
-          <select class="sort-sel" id="log-sort" onchange="AppState.logSort=this.value;renderLogList()">
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="scan_date_desc">Scan date ↓</option>
-            <option value="scan_date_asc">Scan date ↑</option>
-            <option value="name_az">Project A–Z</option>
-            <option value="scans_desc">Most scans</option>
-          </select>
-          <button class="new-btn" onclick="openNewModal()">+ New log</button>
-        </div>
+        <h2>Post-scan feedback log</h2>
+        <p>Field submissions &middot; admin approval &middot; model calibration</p>
       </div>
       <div class="chart-panel">
         <div class="chart-card">
@@ -402,6 +383,26 @@
           <div class="chart-card-title">Scan Count vs Duration</div>
           <div class="chart-card-sub">Each dot = one approved job &middot; dashed = model prediction</div>
           <div class="chart-canvas-wrap"><canvas id="chart-scatter"></canvas></div>
+        </div>
+      </div>
+
+      <div class="log-toolbar">
+        <div class="ftabs" id="filter-tabs">
+          <button class="lft active"  onclick="filterLogs('all',this)">All</button>
+          <button class="lft"         onclick="filterLogs('pending',this)">Pending</button>
+          <button class="lft"         onclick="filterLogs('approved',this)">Approved</button>
+          <button class="lft"         onclick="filterLogs('rejected',this)">Rejected</button>
+        </div>
+        <div class="log-toolbar-right">
+          <select class="sort-sel" id="log-sort" onchange="AppState.logSort=this.value;renderLogList()">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="scan_date_desc">Scan date ↓</option>
+            <option value="scan_date_asc">Scan date ↑</option>
+            <option value="name_az">Project A–Z</option>
+            <option value="scans_desc">Most scans</option>
+          </select>
+          <button class="new-btn" onclick="openNewModal()">+ New log</button>
         </div>
       </div>
 
@@ -422,12 +423,12 @@
 <script src="js/config.js?v=17"></script>
 <script src="js/state.js?v=10"></script>
 <script src="js/utils.js?v=4"></script>
-<script src="js/db.js?v=13"></script>
+<script src="js/db.js?v=14"></script>
 <script src="js/planner.js?v=21"></script>
-<script src="js/logs.js?v=13"></script>
+<script src="js/logs.js?v=14"></script>
 <script src="js/modal.js?v=11"></script>
 <script src="js/ui.js?v=11"></script>
-<script src="js/charts.js?v=1"></script>
+<script src="js/charts.js?v=2"></script>
 <script src="js/main.js?v=7"></script>
 
 </body>

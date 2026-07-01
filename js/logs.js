@@ -61,7 +61,7 @@ function renderLogList() {
         var who      = l.submitted_by
           ? '<span class="pill purple">' + escHtml(l.submitted_by) + '</span>' : '';
         return (
-          '<div class="lcard' + sel + '" onclick="selectLog(\'' + l.id + '\')">'
+          '<div class="lcard' + sel + '" data-id="' + l.id + '" onclick="selectLog(\'' + l.id + '\')">'
           + '<div class="lcard-top">'
           +   '<div class="lcard-name">' + escHtml(l.project_name) + '</div>'
           +   '<div>'
