@@ -391,6 +391,20 @@
           <button class="new-btn" onclick="openNewModal()">+ New log</button>
         </div>
       </div>
+      <div class="chart-panel">
+        <div class="chart-card">
+          <div class="chart-card-title">Avg Time Per Scan · Quality Tier</div>
+          <div class="chart-card-sub">Logged field avg vs model baseline &middot; BLK360 approved logs</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-tps"></canvas></div>
+          <div class="chart-note" id="chart-tps-note"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">Scan Count vs Duration</div>
+          <div class="chart-card-sub">Each dot = one approved job &middot; dashed = model prediction</div>
+          <div class="chart-canvas-wrap"><canvas id="chart-scatter"></canvas></div>
+        </div>
+      </div>
+
       <div class="log-body">
         <div class="log-list" id="log-list"><div class="loading-msg">Loading logs...</div></div>
         <div class="log-detail" id="log-detail">
@@ -402,9 +416,10 @@
   </div><!-- /main -->
 </div><!-- /shell -->
 
-<!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → main -->
+<!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → charts → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
-<script src="js/config.js?v=16"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="js/config.js?v=17"></script>
 <script src="js/state.js?v=10"></script>
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=13"></script>
@@ -412,6 +427,7 @@
 <script src="js/logs.js?v=13"></script>
 <script src="js/modal.js?v=11"></script>
 <script src="js/ui.js?v=11"></script>
+<script src="js/charts.js?v=1"></script>
 <script src="js/main.js?v=7"></script>
 
 </body>

@@ -82,6 +82,7 @@ async function loadApprovedLogs() {
   var scannerLogs = AppState.DB.filter(function(p) { return p.scanner === AppState.selScanner; });
   document.getElementById('db-total').textContent = scannerLogs.length;
   updConf();
+  if (typeof renderCharts === 'function') renderCharts();
 }
 
 async function loadLogs() {
