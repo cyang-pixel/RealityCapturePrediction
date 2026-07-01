@@ -72,7 +72,7 @@ function renderTPSChart(logs) {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { font: { family: 'Sora', size: 10 }, boxWidth: 10, padding: 10 } },
+        legend: { display: false },
         tooltip: { callbacks: { label: function(c) { return c.dataset.label + ': ' + (c.parsed.y !== null ? c.parsed.y + 's' : 'no data'); } } }
       },
       scales: {
@@ -174,23 +174,7 @@ function renderScatterChart(fedLogs, notFedLogs) {
         evt.native.target.style.cursor = hasPt ? 'pointer' : 'default';
       },
       plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            font: { family: 'Sora', size: 10 }, boxWidth: 10, padding: 10,
-            filter: function(item) { return !item.text.includes(' model'); },
-            generateLabels: function(chart) {
-              var defaults = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-              // Show hollow dot for pending items in legend
-              defaults.forEach(function(item) {
-                if (item.text.includes('(pending)')) {
-                  item.fillStyle = 'rgba(255,255,255,0.9)';
-                }
-              });
-              return defaults.filter(function(item) { return !item.text.includes(' model'); });
-            }
-          }
-        },
+        legend: { display: false },
         tooltip: {
           filter: function(item) { return !item.dataset.label.includes(' model'); },
           callbacks: {

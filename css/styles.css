@@ -276,9 +276,14 @@ select.fi {
 /* Charts panel */
 .chart-panel       { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 16px 20px; background: #F9F9F7; border-bottom: 1px solid #E2E2E2; flex-shrink: 0; }
 .chart-card        { background: #fff; border: 1px solid #EAEAEA; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; }
-.chart-card-title  { font-size: 12px; font-weight: 700; color: #222; margin-bottom: 2px; }
-.chart-card-sub    { font-size: 10px; color: #bbb; margin-bottom: 10px; }
+.chart-card-title  { font-size: 12px; font-weight: 700; color: #222; margin-bottom: 6px; }
 .chart-canvas-wrap { position: relative; height: 180px; }
+.chart-vsub   { display: flex; flex-wrap: wrap; gap: 5px 12px; align-items: center; margin-bottom: 10px; }
+.vleg         { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; color: #888; font-family: 'Sora', sans-serif; }
+.vdot         { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.vdot-hollow  { background: #fff !important; border: 2px solid; }
+.vbar         { width: 14px; height: 8px; border-radius: 2px; flex-shrink: 0; display: inline-block; }
+.vdash        { width: 20px; border-top: 2px dashed #bbb; flex-shrink: 0; display: inline-block; }
 .chart-note        { font-size: 10px; color: #bbb; margin-top: 6px; text-align: center; }
 
 .log-toolbar       { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: #fff; border-bottom: 1px solid #E2E2E2; flex-shrink: 0; gap: 10px; }
