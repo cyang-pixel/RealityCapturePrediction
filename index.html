@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reality Capture Prediction</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=24">
+  <link rel="stylesheet" href="css/styles.css?v=27">
 </head>
 <body>
 
@@ -20,13 +20,18 @@
 
 
     <div class="modal-sec">Project info</div>
-    <div class="mgrid">
+    <div class="mgrid" style="grid-template-columns: 3fr 1fr">
       <div class="fg">
         <label class="flbl">Project name</label>
-        <input type="text" class="fi" id="m-name" placeholder="e.g. JFK Terminal 1 — Level 2">
+        <div class="proj-name-row">
+          <input type="text" class="fi" id="m-proj-prefix" list="m-proj-prefix-list" autocomplete="off" placeholder="Select or type project…">
+          <datalist id="m-proj-prefix-list"></datalist>
+          <span class="proj-sep">—</span>
+          <input type="text" class="fi" id="m-proj-area" placeholder="Area / zone (e.g. STG6_LVL1_E4)">
+        </div>
       </div>
       <div class="fg">
-        <label class="flbl">Scanner used</label>
+        <label class="flbl">Scanner</label>
         <select class="fi" id="m-scanner" onchange="onModalScannerChange()">
           <option value="BLK360">BLK360 G2</option>
           <option value="RTC360">RTC360</option>
@@ -388,18 +393,26 @@
         <h2>Post-scan feedback log</h2>
         <p>Field submissions &middot; admin approval &middot; model calibration</p>
       </div>
+      <div class="chart-scanner-tabs">
+        <button class="cst active" data-sc="BLK360" onclick="setChartScanner('BLK360',this)">BLK360 G2</button>
+        <button class="cst"        data-sc="RTC360" onclick="setChartScanner('RTC360',this)">RTC360</button>
+        <button class="cst"        data-sc="VLX"    onclick="setChartScanner('VLX',this)">NavVis VLX</button>
+      </div>
       <div class="chart-panel">
         <div class="chart-card chart-card--click" onclick="openChartModal('tps')">
           <div class="chart-card-top">
             <div>
-              <div class="chart-card-title">Avg Time Per Scan · Quality Tier</div>
+              <div class="chart-card-title">Time Per Scan · By Job</div>
               <div class="chart-kpi" id="chart-tps-kpi"><span class="chart-kpi-sub">Loading&hellip;</span></div>
             </div>
             <span class="chart-expand-icon">&#x2197;</span>
           </div>
           <div class="chart-vsub">
-            <span class="vleg"><span class="vbar" style="background:#5DCAA5"></span>Logged avg</span>
-            <span class="vleg"><span class="vbar" style="background:#E8E8E8;border:1px solid #ddd"></span>Model baseline</span>
+            <span class="vleg"><span class="vdot" style="background:#C0DD97"></span>Fast+ 50mm</span>
+            <span class="vleg"><span class="vdot" style="background:#5DCAA5"></span>Fast 25mm</span>
+            <span class="vleg"><span class="vdot" style="background:#0F6E56"></span>Dense 12mm</span>
+            <span class="vleg"><span class="vdot" style="background:#085041"></span>Dense+ 6mm</span>
+            <span class="vleg"><span class="vdash"></span>model expected</span>
           </div>
           <div class="chart-canvas-wrap-mini"><canvas id="chart-tps"></canvas></div>
           <div class="chart-note" id="chart-tps-note"></div>
@@ -423,6 +436,119 @@
           <div class="chart-canvas-wrap-mini"><canvas id="chart-scatter"></canvas></div>
         </div>
       </div>
+
+      <!-- ── Scanner Analysis ──────────────────────────────────────────────── -->
+      <div class="scanner-analysis">
+
+        <!-- BLK360 -->
+        <div class="sa-panel" id="sa-panel-BLK360">
+          <div class="sa-panel-hdr" onclick="toggleSAPanel('BLK360')">
+            <div class="sa-panel-title-row">
+              <span class="sa-scanner-dot" style="background:#0F6E56"></span>
+              <span class="sa-panel-name">BLK360 G2</span>
+            </div>
+            <div class="sa-badges" id="sa-badges-BLK360"></div>
+            <span class="sa-chev" id="sa-chev-BLK360">&#x25BE;</span>
+          </div>
+          <div class="sa-panel-body" id="sa-body-BLK360">
+            <div class="sa-body-inner">
+              <div class="sa-chart-card">
+                <div class="sa-chart-label">By Project &middot; share of total scans</div>
+                <div class="sa-project-canvas-wrap" id="sa-project-wrap-BLK360"><canvas id="sa-project-BLK360"></canvas></div>
+              </div>
+              <div class="sa-donut-row">
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Environment</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-env-BLK360"></canvas></div>
+                    <div class="sa-leg" id="sa-env-legend-BLK360"></div>
+                  </div>
+                </div>
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Quality Tier &middot; scan positions</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-quality-BLK360"></canvas></div>
+                    <div class="sa-leg" id="sa-quality-legend-BLK360"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RTC360 -->
+        <div class="sa-panel" id="sa-panel-RTC360">
+          <div class="sa-panel-hdr" onclick="toggleSAPanel('RTC360')">
+            <div class="sa-panel-title-row">
+              <span class="sa-scanner-dot" style="background:#4A7FC1"></span>
+              <span class="sa-panel-name">RTC360</span>
+            </div>
+            <div class="sa-badges" id="sa-badges-RTC360"></div>
+            <span class="sa-chev" id="sa-chev-RTC360">&#x25BE;</span>
+          </div>
+          <div class="sa-panel-body" id="sa-body-RTC360">
+            <div class="sa-body-inner">
+              <div class="sa-chart-card">
+                <div class="sa-chart-label">By Project &middot; share of total scans</div>
+                <div class="sa-project-canvas-wrap" id="sa-project-wrap-RTC360"><canvas id="sa-project-RTC360"></canvas></div>
+              </div>
+              <div class="sa-donut-row">
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Environment</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-env-RTC360"></canvas></div>
+                    <div class="sa-leg" id="sa-env-legend-RTC360"></div>
+                  </div>
+                </div>
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Quality Tier &middot; scan positions</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-quality-RTC360"></canvas></div>
+                    <div class="sa-leg" id="sa-quality-legend-RTC360"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NavVis VLX -->
+        <div class="sa-panel" id="sa-panel-VLX">
+          <div class="sa-panel-hdr" onclick="toggleSAPanel('VLX')">
+            <div class="sa-panel-title-row">
+              <span class="sa-scanner-dot" style="background:#8A5BB0"></span>
+              <span class="sa-panel-name">NavVis VLX</span>
+            </div>
+            <div class="sa-badges" id="sa-badges-VLX"></div>
+            <span class="sa-chev" id="sa-chev-VLX">&#x25BE;</span>
+          </div>
+          <div class="sa-panel-body" id="sa-body-VLX">
+            <div class="sa-body-inner">
+              <div class="sa-chart-card">
+                <div class="sa-chart-label">By Project &middot; share of total scans</div>
+                <div class="sa-project-canvas-wrap" id="sa-project-wrap-VLX"><canvas id="sa-project-VLX"></canvas></div>
+              </div>
+              <div class="sa-donut-row">
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Environment</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-env-VLX"></canvas></div>
+                    <div class="sa-leg" id="sa-env-legend-VLX"></div>
+                  </div>
+                </div>
+                <div class="sa-chart-card">
+                  <div class="sa-chart-label">By Quality Tier &middot; scan positions</div>
+                  <div class="sa-donut-inner">
+                    <div class="sa-donut-canvas-wrap"><canvas id="sa-quality-VLX"></canvas></div>
+                    <div class="sa-leg" id="sa-quality-legend-VLX"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /scanner-analysis -->
 
       <div class="log-toolbar">
         <div class="ftabs" id="filter-tabs">
@@ -463,10 +589,11 @@
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=14"></script>
 <script src="js/planner.js?v=21"></script>
-<script src="js/logs.js?v=15"></script>
-<script src="js/modal.js?v=12"></script>
+<script src="js/logs.js?v=16"></script>
+<script src="js/modal.js?v=13"></script>
 <script src="js/ui.js?v=12"></script>
-<script src="js/charts.js?v=5"></script>
+<script src="js/charts.js?v=10"></script>
+<script src="js/analysis.js?v=2"></script>
 <script src="js/main.js?v=7"></script>
 
 </body>

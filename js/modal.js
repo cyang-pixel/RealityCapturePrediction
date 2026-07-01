@@ -149,12 +149,45 @@ function setModalEnvs(envString) {
   }
 }
 
+// ── Project name helpers ──────────────────────────────────────────────────────
+
+function setModalProjectName(fullName) {
+  var parts  = (fullName || '').split(' - ');
+  var prefix = parts[0].trim();
+  var area   = parts.length > 1 ? parts.slice(1).join(' - ').trim() : '';
+  document.getElementById('m-proj-prefix').value = prefix;
+  document.getElementById('m-proj-area').value   = area;
+}
+
+function getModalProjectName() {
+  var prefix = document.getElementById('m-proj-prefix').value.trim();
+  var area   = document.getElementById('m-proj-area').value.trim();
+  return area ? (prefix + ' - ' + area) : prefix;
+}
+
+function populateProjectPrefixList() {
+  var dl = document.getElementById('m-proj-prefix-list');
+  if (!dl) return;
+  var seen = {};
+  (AppState.allLogs || []).forEach(function(l) {
+    var raw = (l.project_name || '').trim();
+    var idx = raw.indexOf(' - ');
+    var pfx = idx > 0 ? raw.substring(0, idx).trim() : raw;
+    if (pfx) seen[pfx] = true;
+  });
+  dl.innerHTML = Object.keys(seen).sort().map(function(p) {
+    return '<option value="' + escHtml(p) + '">';
+  }).join('');
+}
+
 // ── Open / close ──────────────────────────────────────────────────────────────
 
 function openNewModal() {
   AppState.editingLogId = null;
   document.getElementById('modal-title-text').textContent = 'New post-scan feedback log';
-  document.getElementById('m-name').value                 = '';
+  document.getElementById('m-proj-prefix').value          = '';
+  document.getElementById('m-proj-area').value            = '';
+  populateProjectPrefixList();
   document.getElementById('m-submitter').value            = '';
   document.getElementById('m-scan-date').value            = new Date().toISOString().split('T')[0];
   document.getElementById('m-scanner').selectedIndex     = 0;
@@ -184,7 +217,8 @@ function openEditModal(id) {
   var sc = normScanner(l.scanner);
   AppState.editingLogId = id;
   document.getElementById('modal-title-text').textContent = 'Edit log';
-  document.getElementById('m-name').value                 = l.project_name  || '';
+  setModalProjectName(l.project_name || '');
+  populateProjectPrefixList();
   document.getElementById('m-submitter').value            = l.submitted_by   || '';
   document.getElementById('m-scan-date').value            = l.scan_date      || '';
   document.getElementById('m-scanner').value              = sc;
@@ -216,7 +250,8 @@ function duplicateLog(id) {
   var sc = normScanner(l.scanner);
   AppState.editingLogId = null;
   document.getElementById('modal-title-text').textContent = 'Duplicate log';
-  document.getElementById('m-name').value                 = l.project_name  || '';
+  setModalProjectName(l.project_name || '');
+  populateProjectPrefixList();
   document.getElementById('m-submitter').value            = '';
   document.getElementById('m-scan-date').value            = '';
   document.getElementById('m-scanner').value              = sc;
@@ -255,9 +290,11 @@ function setMDelay(v, btn) {
 // ── Submit ────────────────────────────────────────────────────────────────────
 
 async function submitLog() {
-  var name      = document.getElementById('m-name').value.trim();
+  var name      = getModalProjectName();
   var submitter = document.getElementById('m-submitter').value.trim();
-  if (!name)      { showMsg('err', 'Please enter a project name.'); return; }
+  if (!document.getElementById('m-proj-prefix').value.trim()) {
+    showMsg('err', 'Please enter a project name.'); return;
+  }
   if (!submitter) { showMsg('err', 'Please enter your name in "Submitted by" — this field is required.'); return; }
 
   var cfg    = MODAL_QT_CFG[modalScannerMode] || MODAL_QT_CFG.BLK360;

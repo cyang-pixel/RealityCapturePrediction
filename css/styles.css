@@ -629,4 +629,82 @@ select.fi {
   .chart-panel         { grid-template-columns: 1fr; }
   .log-detail          { display: none; }
   .mgrid, .mgrid3      { grid-template-columns: 1fr; }
+  .sa-donut-row        { flex-direction: column; }
 }
+
+/* ── Scanner tabs (above chart panel) ────────────────────────────────────── */
+.chart-scanner-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.cst {
+  font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 600;
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid #E0E0E0; background: #fff; color: #888;
+  cursor: pointer; transition: all .15s; letter-spacing: .1px;
+}
+.cst.active           { background: #111; color: #fff; border-color: #111; }
+.cst:hover:not(.active):not(:disabled) { background: #F5F5F5; color: #444; border-color: #CCC; }
+.cst:disabled, .cst.cst--empty { opacity: .32; cursor: not-allowed; }
+
+/* ── Scanner Analysis accordion ─────────────────────────────────────────── */
+.scanner-analysis { margin: 18px 0 20px; display: flex; flex-direction: column; gap: 7px; }
+
+.sa-panel {
+  background: #fff; border: 1px solid #EBEBEB; border-radius: 12px; overflow: hidden;
+  transition: opacity .2s;
+}
+.sa-panel--empty { opacity: .38; pointer-events: none; }
+
+.sa-panel-hdr {
+  display: flex; align-items: center; gap: 10px; padding: 13px 16px;
+  cursor: pointer; user-select: none; transition: background .15s;
+}
+.sa-panel-hdr:hover { background: #FAFAFA; }
+
+.sa-panel-title-row { display: flex; align-items: center; gap: 8px; }
+.sa-scanner-dot     { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sa-panel-name      { font-size: 13px; font-weight: 700; color: #111; letter-spacing: -.2px; }
+
+.sa-badges     { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; margin-left: 4px; }
+.sa-pill       { font-size: 10px; font-weight: 600; color: #555; background: #F2F2F2; border-radius: 20px; padding: 2px 8px; white-space: nowrap; }
+.sa-badge-empty { font-size: 10px; color: #bbb; font-style: italic; }
+
+.sa-chev {
+  font-size: 12px; color: #ccc; flex-shrink: 0;
+  transition: transform .28s ease; display: inline-block;
+}
+.sa-chev.open { transform: rotate(180deg); }
+
+/* Panel body collapse / expand */
+.sa-panel-body { max-height: 0; overflow: hidden; transition: max-height .32s ease; }
+
+.sa-body-inner  { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* Chart cards inside the panel */
+.sa-chart-card  {
+  background: #FAFAFA; border: 1px solid #F0F0F0; border-radius: 9px; padding: 12px 14px;
+}
+.sa-chart-label {
+  font-size: 9.5px; font-weight: 700; color: #bbb; letter-spacing: .6px;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+
+/* Project horizontal bar */
+.sa-project-canvas-wrap { position: relative; }
+
+/* Donut row */
+.sa-donut-row     { display: flex; gap: 10px; }
+.sa-donut-row .sa-chart-card { flex: 1; min-width: 0; }
+.sa-donut-inner   { display: flex; align-items: center; gap: 14px; }
+.sa-donut-canvas-wrap { position: relative; height: 130px; width: 130px; flex-shrink: 0; }
+
+/* Donut HTML legend */
+.sa-leg         { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.sa-leg-row     { display: flex; align-items: center; gap: 7px; }
+.sa-leg-dot     { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sa-leg-name    { font-size: 10px; color: #555; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sa-leg-pct     { font-size: 10px; font-weight: 700; color: #111; flex-shrink: 0; }
+
+/* ── Split project name field in modal ───────────────────────────────────── */
+.proj-name-row  { display: flex; align-items: center; gap: 6px; }
+.proj-name-row .fi:first-child { flex: 0 0 130px; min-width: 0; }
+.proj-name-row .fi:last-child  { flex: 1; min-width: 0; }
+.proj-sep       { font-size: 14px; color: #ccc; flex-shrink: 0; user-select: none; }

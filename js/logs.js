@@ -89,6 +89,7 @@ function renderLogList() {
     html += '</div>'; // close sc-section
   });
   list.innerHTML = html;
+  if (typeof renderAnalysis === 'function') renderAnalysis();
 }
 
 function selectLog(id) {
