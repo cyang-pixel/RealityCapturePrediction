@@ -20,7 +20,7 @@ const SCANNER_QT = {
     keys:      ['s', 'm', 'd', 'dp'],
     map:       { s: 'Fast+ (50mm)', m: 'Fast (25mm)', d: 'Dense (12mm)', dp: 'Dense+ (6mm)' },
     labels:    { s: 'Fast+ 50mm', m: 'Fast 25mm', d: 'Dense 12mm', dp: 'Dense+ 6mm' },
-    hints:     { s: '· 7s', m: '· 13s', d: '· 30s', dp: '· 75s' },
+    hints:     { s: '· ~90s/pos', m: '· ~100s/pos', d: '· ~130s/pos', dp: '· ~165s/pos' },
     defaults:  { s: 0, m: 0, d: 100, dp: 0 },
     battTotal: 6
   },
@@ -83,11 +83,12 @@ const SCANNERS = {
 };
 
 const QUALITY = {
-  // BLK360
-  'Fast+ (50mm)': { tps: 7,   battLifeHrs: 0.38, dataGbScan: 0.10, sfScanMult: 0.55, hint: '7 sec/scan · 50mm @ 10m' },
-  'Fast (25mm)':  { tps: 13,  battLifeHrs: 0.50, dataGbScan: 0.18, sfScanMult: 0.80, hint: '13 sec/scan · 25mm @ 10m' },
-  'Dense (12mm)': { tps: 30,  battLifeHrs: 0.70, dataGbScan: 0.29, sfScanMult: 1.00, hint: '30 sec/scan · 12mm @ 10m' },
-  'Dense+ (6mm)': { tps: 75,  battLifeHrs: 0.88, dataGbScan: 0.48, sfScanMult: 1.85, hint: '75 sec/scan · 6mm @ 10m' },
+  // BLK360 — tps = full position time (scan + walk to next + level + start)
+  // battLifeHrs = hours of field time per pack (battery drains mainly during scan, not movement)
+  'Fast+ (50mm)': { tps: 90,  battLifeHrs: 5.0, dataGbScan: 0.10, sfScanMult: 0.55, hint: '7s scan · ~90s/position' },
+  'Fast (25mm)':  { tps: 100, battLifeHrs: 3.3, dataGbScan: 0.18, sfScanMult: 0.80, hint: '13s scan · ~100s/position' },
+  'Dense (12mm)': { tps: 130, battLifeHrs: 2.5, dataGbScan: 0.29, sfScanMult: 1.00, hint: '30s scan · ~130s/position' },
+  'Dense+ (6mm)': { tps: 165, battLifeHrs: 1.8, dataGbScan: 0.48, sfScanMult: 1.85, hint: '75s scan · ~165s/position' },
   // RTC360 — tps = full position time (scan + tripod setup + levelling + movement overhead)
   // Anchored to field estimate: 65–80 scans / 8am–3pm = ~348s effective at Medium 6mm
   // Overhead per position ≈ 237s constant across tiers (heavy tripod scanner)
