@@ -16,10 +16,12 @@ function lookAlikes(envSet, spacing) {
 }
 
 function getBaseSF(envSet, spacing, matches) {
-  if (matches.length > 0) {
-    var totalSF    = matches.reduce((a, p) => a + p.sq_ft, 0);
-    var totalScans = matches.reduce((a, p) => a + p.actual_scans, 0);
-    return totalSF / totalScans;
+  // Only use records that have both sq_ft and actual_scans populated
+  var valid = matches.filter(p => p.sq_ft > 0 && p.actual_scans > 0);
+  if (valid.length > 0) {
+    var totalSF    = valid.reduce((a, p) => a + p.sq_ft, 0);
+    var totalScans = valid.reduce((a, p) => a + p.actual_scans, 0);
+    if (totalScans > 0) return totalSF / totalScans;
   }
   var keys = envSet.size > 0 ? Array.from(envSet) : Object.keys(BASELINE);
   var t = 0, c = 0;
@@ -94,7 +96,7 @@ function getAvgTpS(envSet, spacing, qual, matches) {
 }
 
 function getAvgData(matches, qual) {
-  var qm = matches.filter(p => p.quality_setting === qual);
+  var qm = matches.filter(p => p.quality_setting === qual && p.actual_scans > 0 && p.actual_data_gb > 0);
   if (qm.length > 0) {
     return qm.reduce((a, p) => a + (p.actual_data_gb / p.actual_scans), 0) / qm.length;
   }
@@ -102,7 +104,7 @@ function getAvgData(matches, qual) {
 }
 
 function getBattLife(matches, qual) {
-  var qm = matches.filter(p => p.quality_setting === qual && p.batteries > 0);
+  var qm = matches.filter(p => p.quality_setting === qual && p.batteries > 0 && p.actual_hours > 0);
   if (qm.length > 0) {
     return qm.reduce((a, p) => a + (p.actual_hours / p.batteries), 0) / qm.length;
   }

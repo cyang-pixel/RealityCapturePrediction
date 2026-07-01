@@ -21,7 +21,7 @@ function renderTPSChart(logs) {
   if (_chartTPS) { _chartTPS.destroy(); _chartTPS = null; }
 
   var loggedTPS = BLK_TIERS.map(function(tier) {
-    var g = logs.filter(function(p) { return p.quality_setting === tier; });
+    var g = logs.filter(function(p) { return p.quality_setting === tier && p.actual_scans > 0 && p.actual_hours > 0; });
     if (!g.length) return null;
     return Math.round(g.reduce(function(s, p) { return s + (p.actual_hours * 3600 / p.actual_scans); }, 0) / g.length);
   });
