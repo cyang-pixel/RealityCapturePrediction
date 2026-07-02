@@ -1,5 +1,5 @@
-const AT_BASE  = '__AT_BASE__';
-const AT_TOKEN = '__AT_TOKEN__';
+const AT_BASE  = window.__LOCAL_AT_BASE__  || '__AT_BASE__';
+const AT_TOKEN = window.__LOCAL_AT_TOKEN__ || '__AT_TOKEN__';
 
 const SETUP_BUFFER = 30;
 const TOTAL_BATT   = 6;
@@ -105,5 +105,5 @@ const BASELINE = {
   'Hospital':    { '20ft': 300, '15ft': 210, '10ft': 110 },
   'Industrial':  { '20ft': 520, '15ft': 370, '10ft': 200 },
   'Residential': { '20ft': 280, '15ft': 200, '10ft': 105 },
-  'Mixed Use':   { '20ft': 400, '15ft': 275, '10ft': 145 }
+  'Educational': { '20ft': 420, '15ft': 290, '10ft': 155 }
 };

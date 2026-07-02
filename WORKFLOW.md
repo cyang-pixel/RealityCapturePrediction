@@ -2,18 +2,26 @@
 
 ## 1 — Test locally before pushing
 
-Open a terminal in the project folder and run:
+### One-time setup: add your Airtable credentials
+
+Open `js/config.local.js` and replace the placeholder values with your real credentials:
+
+```js
+window.__LOCAL_AT_BASE__  = 'appXXXX…';   // Airtable base ID
+window.__LOCAL_AT_TOKEN__ = 'patXXXX…';   // Airtable personal access token
+```
+
+This file is gitignored — credentials will never be committed.  
+Get the values from: **Airtable → your base → Help → API** (or your Airtable account token settings).
+
+### Run the local server
 
 ```bash
 cd "c:/Users/cyang/Desktop/JFK Terminal 6/Reality Capture Prediction"
-npx serve .
+npx serve . -l 8080
 ```
 
-Open your browser and go to the URL shown in the terminal (usually `http://localhost:3000`).
-
-Stop the server when done: **Ctrl + C**
-
-> First run will ask to install `serve` — press **y** to confirm. Takes a few seconds, then works instantly every time after.
+Open `http://localhost:8080`. Stop with **Ctrl + C**.
 
 ---
 
@@ -36,8 +44,8 @@ Your live site at **https://cyang-pixel.github.io/RealityCapturePrediction** upd
 
 | What you want | Command |
 |---|---|
-| Run locally | `npx serve .` |
-| View locally | `http://localhost:3000` |
+| Run locally | `npx serve . -l 8080` |
+| View locally | `http://localhost:8080` |
 | Stage all changes | `git add index.html css/ js/` |
 | Save a version | `git commit -m "your message"` |
 | Push live | `git push` |

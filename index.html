@@ -48,14 +48,15 @@
     <div class="fg" style="margin-bottom:8px">
       <label class="flbl">Environment <span style="font-weight:400;color:#ccc;text-transform:none;letter-spacing:0">— select all that apply</span></label>
       <div class="sw" id="m-env-grp" style="margin-top:5px">
-        <button class="btn" data-env="Office"      onclick="toggleModalEnv(this)">Office</button>
-        <button class="btn active" data-env="Airport"     onclick="toggleModalEnv(this)">Airport</button>
-        <button class="btn" data-env="Warehouse"   onclick="toggleModalEnv(this)">Warehouse</button>
-        <button class="btn" data-env="Retail"      onclick="toggleModalEnv(this)">Retail</button>
-        <button class="btn" data-env="Hospital"    onclick="toggleModalEnv(this)">Hospital</button>
-        <button class="btn" data-env="Industrial"  onclick="toggleModalEnv(this)">Industrial</button>
-        <button class="btn" data-env="Residential" onclick="toggleModalEnv(this)">Residential</button>
-        <button class="btn" data-env="Mixed Use"   onclick="toggleModalEnv(this)">Mixed Use</button>
+        <button class="btn active" data-env="Airport"      onclick="toggleModalEnv(this)">Airport</button>
+        <button class="btn" data-env="Educational"  onclick="toggleModalEnv(this)">Educational</button>
+        <button class="btn" data-env="Hospital"     onclick="toggleModalEnv(this)">Hospital</button>
+        <button class="btn" data-env="Industrial"   onclick="toggleModalEnv(this)">Industrial</button>
+
+        <button class="btn" data-env="Office"       onclick="toggleModalEnv(this)">Office</button>
+        <button class="btn" data-env="Residential"  onclick="toggleModalEnv(this)">Residential</button>
+        <button class="btn" data-env="Retail"       onclick="toggleModalEnv(this)">Retail</button>
+        <button class="btn" data-env="Warehouse"    onclick="toggleModalEnv(this)">Warehouse</button>
       </div>
     </div>
     <div class="fg" style="margin-bottom:8px">
@@ -242,14 +243,15 @@
             <div class="pb">
               <div class="slbl">Environment type <span style="font-size:11px;color:#bbb;font-weight:400;letter-spacing:0;text-transform:none">&#x2014; select all that apply</span></div>
               <div class="sw" id="env-tags">
-                <button class="btn"        data-env="Office"      onclick="toggleEnv(this)">Office<span class="btn-cnt"></span></button>
-                <button class="btn active" data-env="Airport"     onclick="toggleEnv(this)">Airport<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Warehouse"   onclick="toggleEnv(this)">Warehouse<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Retail"      onclick="toggleEnv(this)">Retail<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Hospital"    onclick="toggleEnv(this)">Hospital<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Industrial"  onclick="toggleEnv(this)">Industrial<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Residential" onclick="toggleEnv(this)">Residential<span class="btn-cnt"></span></button>
-                <button class="btn"        data-env="Mixed Use"   onclick="toggleEnv(this)">Mixed use<span class="btn-cnt"></span></button>
+                <button class="btn active" data-env="Airport"      onclick="toggleEnv(this)">Airport<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Educational"  onclick="toggleEnv(this)">Educational<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Hospital"     onclick="toggleEnv(this)">Hospital<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Industrial"   onclick="toggleEnv(this)">Industrial<span class="btn-cnt"></span></button>
+
+                <button class="btn"        data-env="Office"       onclick="toggleEnv(this)">Office<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Residential"  onclick="toggleEnv(this)">Residential<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Retail"       onclick="toggleEnv(this)">Retail<span class="btn-cnt"></span></button>
+                <button class="btn"        data-env="Warehouse"    onclick="toggleEnv(this)">Warehouse<span class="btn-cnt"></span></button>
               </div>
               <div class="env-note" id="env-note">1 type selected</div>
             </div>
@@ -584,16 +586,17 @@
 <!-- Scripts — load order matters: config → state → utils → db → planner → logs → modal → ui → charts → main -->
 <!-- ?v= version string busts the browser cache after every change — increment when deploying -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="js/config.js?v=17"></script>
+<script src="js/config.local.js" onerror="void 0"></script>
+<script src="js/config.js?v=19"></script>
 <script src="js/state.js?v=10"></script>
 <script src="js/utils.js?v=4"></script>
 <script src="js/db.js?v=14"></script>
-<script src="js/planner.js?v=21"></script>
+<script src="js/planner.js?v=24"></script>
 <script src="js/logs.js?v=16"></script>
 <script src="js/modal.js?v=13"></script>
 <script src="js/ui.js?v=12"></script>
-<script src="js/charts.js?v=10"></script>
-<script src="js/analysis.js?v=2"></script>
+<script src="js/charts.js?v=13"></script>
+<script src="js/analysis.js?v=4"></script>
 <script src="js/main.js?v=7"></script>
 
 </body>

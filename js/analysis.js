@@ -23,7 +23,7 @@ var SA_ENV_COLORS = {
   'Hospital':    '#E07070',
   'Industrial':  '#909090',
   'Residential': '#D4A870',
-  'Mixed Use':   '#70C0E0'
+  'Educational': '#E8956D'
 };
 
 var BLK_TIER_ORDER = ['Fast+ (50mm)', 'Fast (25mm)', 'Dense (12mm)', 'Dense+ (6mm)'];

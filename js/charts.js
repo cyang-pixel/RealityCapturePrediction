@@ -385,16 +385,26 @@ function renderScatterFull(ctx) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          filter: function(item) { return !item.dataset.label.includes(' model'); },
+          filter: function(item) { return !item.dataset.label.endsWith(' model'); },
           callbacks: {
             title: function(items) {
-              var pt = _chartFull.data.datasets[items[0].datasetIndex].data[items[0].dataIndex];
+              var pt = items[0].raw;
               return (pt && pt.name) ? pt.name : '';
             },
             label: function(c) {
-              var tier = c.dataset.label.replace(' (in model)', '').replace(' (pending)', '');
-              var fed  = c.dataset.label.includes('(in model)') ? ' · in model' : ' · not yet fed';
-              return tier + ':  ' + c.parsed.x + ' scans  ·  ' + c.parsed.y + ' min' + fed;
+              var pt     = c.raw;
+              var logRec = pt && pt.id ? (AppState.allLogs || []).find(function(r) { return r.id === pt.id; }) : null;
+              var tier       = c.dataset.label.replace(' (in model)', '').replace(' (pending)', '');
+              var scans      = c.parsed.x;
+              var durMins    = c.parsed.y;
+              var secPerScan = scans > 0 ? Math.round(durMins * 60 / scans) : '—';
+              var date       = logRec && logRec.scan_date   ? fmtScanLabel(logRec.scan_date) : '';
+              var env        = logRec && logRec.environment ? logRec.environment              : '';
+              var fed        = c.dataset.label.includes('(in model)') ? 'In model ✓' : 'Not yet fed';
+              var lines      = [ tier + '  ·  ' + scans + ' scans  ·  ' + durMins + ' min' ];
+              if (date || env) lines.push([date, env].filter(Boolean).join('  ·  '));
+              lines.push(secPerScan + 's/scan  ·  ' + fed);
+              return lines;
             }
           }
         }

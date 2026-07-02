@@ -39,10 +39,10 @@ var ENV_TPS_MULT = {
   'Warehouse':   1.10,
   'Industrial':  1.15,
   'Retail':      1.20,
-  'Mixed Use':   1.25,
   'Office':      1.40,
-  'Hospital':    1.45,
-  'Residential': 1.55
+  'Hospital':     1.45,
+  'Educational':  1.50,
+  'Residential':  1.55
 };
 
 function getEnvMult(envSet) {
@@ -323,7 +323,7 @@ function calculate() {
   // Battery swap advisory — shown separately, not added to duration
   var battCycles  = Math.ceil((D_adj / 60) / weightedBatt);
   var swapCount   = Math.max(0, battCycles - 1);
-  var swapMins    = swapCount * 8;
+  var swapMins    = swapCount * (AppState.selScanner === 'BLK360' ? 2 : 8);
   var totalData   = Ps * weightedData;
 
   document.getElementById('arr-time').textContent = minsToStr(finishMins - D_max);
