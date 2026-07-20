@@ -28,15 +28,13 @@ function calcHours(arr, dep) {
   return ((timeToMins(dep) - timeToMins(arr) + 1440) % 1440) / 60;
 }
 
-// Returns the dominant quality tier name for a scan_log row.
+// Returns the dominant quality tier name for a scan_log row, using the
+// tier vocabulary and Airtable column mapping of the row's own scanner.
 function getDomQ(r) {
-  var t = {
-    'Fast+ (50mm)': r.quality_standard  || 0,
-    'Fast (25mm)':  r.quality_medium    || 0,
-    'Dense (12mm)': r.quality_dense     || 0,
-    'Dense+ (6mm)': r.quality_denseplus || 0
-  };
-  return Object.entries(t).sort((a, b) => b[1] - a[1])[0][0];
+  var cfg = SCANNER_QT[normScanner(r.scanner)] || SCANNER_QT.BLK360;
+  return cfg.keys
+    .map(function(k) { return [cfg.map[k], parseFloat(r[cfg.cols[k]]) || 0]; })
+    .sort(function(a, b) { return b[1] - a[1]; })[0][0];
 }
 
 function escHtml(s) {

@@ -13,5 +13,6 @@ const AppState = {
   floorsMode:   'single',
   mDelay:       'None',
   calcMode:     'setups',
-  selScanner:   'BLK360'
+  selScanner:   'BLK360',
+  scCollapsed:  {}
 };

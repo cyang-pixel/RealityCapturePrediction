@@ -26,13 +26,22 @@ var SA_ENV_COLORS = {
   'Educational': '#E8956D'
 };
 
-var BLK_TIER_ORDER = ['Fast+ (50mm)', 'Fast (25mm)', 'Dense (12mm)', 'Dense+ (6mm)'];
-var BLK_TIER_SHORT = {
-  'Fast+ (50mm)': 'Fast+ 50mm',
-  'Fast (25mm)':  'Fast 25mm',
-  'Dense (12mm)': 'Dense 12mm',
-  'Dense+ (6mm)': 'Dense+ 6mm'
-};
+function qtCfgFor(scanner) {
+  return SCANNER_QT[scanner] || SCANNER_QT.BLK360;
+}
+
+// Full tier label → short label, for a given scanner's tier vocabulary.
+function qtShortLabel(scanner, tierName) {
+  var cfg = qtCfgFor(scanner);
+  var key = cfg.keys.filter(function(k) { return cfg.map[k] === tierName; })[0];
+  return key ? cfg.labels[key] : tierName;
+}
+
+// Ordered list of full tier labels for a given scanner.
+function qtTierOrder(scanner) {
+  var cfg = qtCfgFor(scanner);
+  return cfg.keys.map(function(k) { return cfg.map[k]; });
+}
 
 // ── Donut center-text plugin ─────────────────────────────────────────────────
 
@@ -67,14 +76,11 @@ function getProjectFamily(rawName) {
   return idx > 0 ? name.substring(0, idx).trim() : 'Other';
 }
 
-function saGetDomQ(l) {
-  var t = {
-    'Fast+ (50mm)': parseFloat(l.quality_standard)  || 0,
-    'Fast (25mm)':  parseFloat(l.quality_medium)    || 0,
-    'Dense (12mm)': parseFloat(l.quality_dense)     || 0,
-    'Dense+ (6mm)': parseFloat(l.quality_denseplus) || 0
-  };
-  return Object.keys(t).reduce(function(a, b) { return t[a] >= t[b] ? a : b; });
+function saGetDomQ(scanner, l) {
+  var cfg = qtCfgFor(scanner);
+  return cfg.keys
+    .map(function(k) { return [cfg.map[k], parseFloat(l[cfg.cols[k]]) || 0]; })
+    .reduce(function(a, b) { return a[1] >= b[1] ? a : b; })[0];
 }
 
 function getAnalysisLogs(scanner) {
@@ -114,7 +120,7 @@ function updateSABadges(scanner, logs) {
   var totalScans = logs.reduce(function(s, l) { return s + (parseInt(l.total_scans) || 0); }, 0);
 
   var tierCount = {};
-  logs.forEach(function(l) { var t = saGetDomQ(l); tierCount[t] = (tierCount[t] || 0) + 1; });
+  logs.forEach(function(l) { var t = saGetDomQ(scanner, l); tierCount[t] = (tierCount[t] || 0) + 1; });
   var topTier = Object.keys(tierCount).reduce(function(a, b) { return tierCount[a] >= tierCount[b] ? a : b; }, '');
 
   var envCount = {};
@@ -130,7 +136,7 @@ function updateSABadges(scanner, logs) {
   el.innerHTML =
     '<span class="sa-pill">' + logs.length + ' job' + (logs.length !== 1 ? 's' : '') + '</span>'
     + '<span class="sa-pill">' + totalScans.toLocaleString() + ' scans</span>'
-    + (topTier ? '<span class="sa-pill">' + (BLK_TIER_SHORT[topTier] || topTier) + '</span>' : '')
+    + (topTier ? '<span class="sa-pill">' + qtShortLabel(scanner, topTier) + '</span>' : '')
     + (topEnv  ? '<span class="sa-pill">' + topEnv + '</span>' : '');
 }
 
@@ -329,13 +335,13 @@ function renderSAQuality(scanner, logs) {
 
   var tierMap = {};
   logs.forEach(function(l) {
-    var tier = saGetDomQ(l);
+    var tier = saGetDomQ(scanner, l);
     if (!tierMap[tier]) tierMap[tier] = { jobs: 0, scans: 0 };
     tierMap[tier].jobs++;
     tierMap[tier].scans += parseInt(l.total_scans) || 0;
   });
 
-  var tierNames  = BLK_TIER_ORDER.filter(function(t) { return tierMap[t]; });
+  var tierNames  = qtTierOrder(scanner).filter(function(t) { return tierMap[t]; });
   var tierVals   = tierNames.map(function(t) { return tierMap[t].scans; });
   var tierTotal  = tierVals.reduce(function(s, v) { return s + v; }, 0);
   var tierColors = tierNames.map(function(t) { return QTC[t] || '#ccc'; });
@@ -373,7 +379,7 @@ function renderSAQuality(scanner, logs) {
       var pct = (tierTotal && tierMap[name]) ? Math.round(tierMap[name].scans / tierTotal * 100) : 0;
       return '<div class="sa-leg-row">'
         + '<span class="sa-leg-dot" style="background:' + tierColors[i] + '"></span>'
-        + '<span class="sa-leg-name">' + (BLK_TIER_SHORT[name] || name) + '</span>'
+        + '<span class="sa-leg-name">' + qtShortLabel(scanner, name) + '</span>'
         + '<span class="sa-leg-pct">' + pct + '%</span>'
         + '</div>';
     }).join('');

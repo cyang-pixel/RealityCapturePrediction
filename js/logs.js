@@ -37,13 +37,16 @@ function renderLogList() {
 
   var html = '';
   SCANNER_SECTIONS.forEach(function(sc) {
-    var logs = filtered.filter(function(l) { return normScanner(l.scanner) === sc.key; });
-    var cnt  = logs.length;
+    var logs      = filtered.filter(function(l) { return normScanner(l.scanner) === sc.key; });
+    var cnt       = logs.length;
+    var collapsed = !!AppState.scCollapsed[sc.key];
     html += '<div class="sc-section sc-section--' + sc.key + '">'
-      + '<div class="sc-sec-hdr">'
+      + '<div class="sc-sec-hdr" onclick="toggleScSection(\'' + sc.key + '\')">'
       +   '<span class="sc-sec-name">' + sc.label + '</span>'
       +   '<span class="sc-sec-cnt">' + cnt + ' log' + (cnt !== 1 ? 's' : '') + '</span>'
-      + '</div>';
+      +   '<span class="sc-chev' + (collapsed ? '' : ' open') + '" id="sc-chev-' + sc.key + '">&#x25BE;</span>'
+      + '</div>'
+      + '<div class="sc-sec-body' + (collapsed ? ' collapsed' : '') + '" id="sc-body-' + sc.key + '">';
     if (cnt === 0) {
       html += '<div class="sc-sec-empty">No logs yet</div>';
     } else {
@@ -86,10 +89,21 @@ function renderLogList() {
         );
       }).join('');
     }
+    html += '</div>'; // close sc-sec-body
     html += '</div>'; // close sc-section
   });
   list.innerHTML = html;
   if (typeof renderAnalysis === 'function') renderAnalysis();
+}
+
+function toggleScSection(key) {
+  var collapsed = !AppState.scCollapsed[key];
+  AppState.scCollapsed[key] = collapsed;
+
+  var body = document.getElementById('sc-body-' + key);
+  var chev = document.getElementById('sc-chev-' + key);
+  if (body) body.classList.toggle('collapsed', collapsed);
+  if (chev) chev.classList.toggle('open', !collapsed);
 }
 
 function selectLog(id) {
@@ -102,12 +116,9 @@ function selectLog(id) {
   var durMins  = calcHours(l.arrival_time, l.departure_time) * 60;
   var sqftStr  = l.sq_ft ? parseInt(l.sq_ft).toLocaleString('en-US') + ' sq ft' : 'Not recorded';
   var dt       = fmtDateTime(l.created_at);
-  var tiers    = {
-    'Fast+ (50mm)': l.quality_standard  || 0,
-    'Fast (25mm)':  l.quality_medium    || 0,
-    'Dense (12mm)': l.quality_dense     || 0,
-    'Dense+ (6mm)': l.quality_denseplus || 0
-  };
+  var qtCfg    = SCANNER_QT[normScanner(l.scanner)] || SCANNER_QT.BLK360;
+  var tiers    = {};
+  qtCfg.keys.forEach(function(k) { tiers[qtCfg.map[k]] = l[qtCfg.cols[k]] || 0; });
 
   var barSegs = '', legend = '';
   Object.entries(tiers).forEach(([k, pct]) => {

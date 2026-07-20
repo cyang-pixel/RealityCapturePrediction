@@ -21,6 +21,7 @@ const SCANNER_QT = {
     map:       { s: 'Fast+ (50mm)', m: 'Fast (25mm)', d: 'Dense (12mm)', dp: 'Dense+ (6mm)' },
     labels:    { s: 'Fast+ 50mm', m: 'Fast 25mm', d: 'Dense 12mm', dp: 'Dense+ 6mm' },
     hints:     { s: '· ~7s scan', m: '· 30s scan', d: '· 42s scan', dp: '· ~75s scan' },
+    cols:      { s: 'quality_standard', m: 'quality_medium', d: 'quality_dense', dp: 'quality_denseplus' },
     defaults:  { s: 0, m: 0, d: 100, dp: 0 },
     battTotal: 6
   },
@@ -29,6 +30,7 @@ const SCANNER_QT = {
     map:       { l: 'RTC Low', m: 'RTC Medium', h: 'RTC High' },
     labels:    { l: 'Low · 12mm', m: 'Medium · 6mm', h: 'High · 3mm' },
     hints:     { l: '· 1:26', m: '· 1:51', h: '· 2:42' },
+    cols:      { l: 'quality_standard', m: 'quality_medium', h: 'quality_dense' },
     defaults:  { l: 0, m: 100, h: 0 },
     battTotal: 4,
     battPerUnit: 2
